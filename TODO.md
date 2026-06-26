@@ -1,42 +1,28 @@
-# TODO - Implémentation architecture artisan_bf
+# TODO - Clean Architecture skeleton
 
-## Étape 1 — Préparation deps
-- [x] Mettre à jour `pubspec.yaml` : ajouter Riverpod, Supabase, SharedPreferences
-
-
-## Étape 2 — Core
-- [x] Créer `lib/core/di/injection_container.dart`
-- [x] Créer `lib/core/network/supabase_client.dart`
-- [x] Créer `lib/core/utils/constants.dart`, `formatter.dart`, `validators.dart`
-- [x] Créer `lib/core/theme/app_theme.dart`
+## Étape 1 — Cartographie
+- [x] Parcourir l’arborescence existante (lib/ et pubspec.yaml)
+- [x] Lire/valider les fichiers déjà présents dans la liste demandée (partiel à ce stade)
 
 
-## Étape 3 — Domain
-- [ ] Créer `lib/domain/entities/*.dart`
-- [ ] Créer `lib/domain/repositories/i_*.dart`
-- [ ] Créer `lib/domain/usecases/**_usecase.dart`
+## Étape 2 — Stubs Clean Architecture
+- [ ] Créer/compléter toutes les routes de fichiers manquantes
 
-## Étape 4 — Data
-- [ ] Créer `lib/data/datasources/remote/supabase_*_datasource.dart`
-- [ ] Créer `lib/data/datasources/local/shared_prefs_datasource.dart`
-- [ ] Créer `lib/data/models/*_dto.dart`
-- [ ] Créer `lib/data/repositories/*_repository_impl.dart`
+- [ ] Ajouter entités/DTOs pures + repositories abstraits + use cases `call()`
+- [ ] Ajouter datasources avec `throw UnimplementedError()`
+- [ ] Ajouter providers Riverpod (StateNotifier/FutureProvider)
+- [ ] Ajouter pages StatelessWidget basiques
 
-## Étape 5 — Presentation
-- [ ] Créer providers Riverpod : `auth_provider.dart`, `commerce_provider.dart`, `avis_provider.dart`
-- [x] Créer pages : `splash_page.dart`, `login_page.dart`, `register_page.dart`, `onboarding_page.dart`
+## Étape 3 — Core
+- [ ] Mettre à jour `constants.dart` avec la liste complète des catégories
+- [ ] Vérifier/squeletter `injection_container.dart` et `supabase_client.dart`
+- [ ] Vérifier/squeletter `app_theme.dart`
 
-- [ ] Créer widgets : `loading_indicator.dart`, `custom_app_bar.dart`, `commerce_card.dart`, `rating_stars.dart`
+## Étape 4 — pubspec.yaml
+- [ ] Mettre à jour `dependencies` et `dev_dependencies` selon la demande
 
-## Étape 6 — Wiring
-- [x] Remplacer `lib/main.dart` par `ProviderScope` + `SplashPage`
-- [ ] Créer providers/clients/rest of presentation (placeholders)
-
-
-
-
-## Étape 7 — Validation
+## Étape 5 — Validation
 - [ ] `flutter pub get`
 - [ ] `flutter analyze`
-- [ ] `flutter run`
+- [ ] (optionnel) `flutter test`
 
