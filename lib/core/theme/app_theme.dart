@@ -1,3 +1,5 @@
+// Ce fichier définit le thème de l’application.
+
 import 'package:flutter/material.dart';
 
 class AppTheme {

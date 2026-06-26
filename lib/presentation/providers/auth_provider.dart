@@ -1,27 +1,19 @@
+// Ce provider gère la logique d’authentification via Riverpod.
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../domain/usecases/auth/login_usecase.dart';
 import '../../domain/usecases/auth/register_usecase.dart';
-import '../../data/datasources/remote/supabase_auth_datasource.dart';
+import '../../domain/repositories/i_auth_repository.dart';
 
 import '../../core/di/injection_container.dart';
-import '../../data/repositories/auth_repository_impl.dart';
 
-final authControllerProvider = Provider<AuthController>((ref) {
-  final supabase = ref.watch(supabaseClientProvider);
-  final repo = AuthRepositoryImpl(SupabaseAuthDatasource(supabase));
-  return AuthController(
-    loginUsecase: LoginUsecase(repo),
-    registerUsecase: RegisterUsecase(repo),
-    repo: repo,
-  );
-});
-
+/// Contrôleur (ViewModel) minimal.
 class AuthController {
   final LoginUsecase loginUsecase;
   final RegisterUsecase registerUsecase;
-  final AuthRepositoryImpl repo;
+  final IAuthRepository repo;
 
   AuthController({
     required this.loginUsecase,
@@ -51,3 +43,15 @@ class AuthController {
 
   Future<User?> getCurrentUser() => repo.getCurrentSupabaseUser();
 }
+
+final authControllerProvider = Provider<AuthController>((ref) {
+  final repo = ref.watch(iAuthRepositoryProvider);
+  final loginUsecase = ref.watch(loginUsecaseProvider);
+  final registerUsecase = ref.watch(registerUsecaseProvider);
+
+  return AuthController(
+    loginUsecase: loginUsecase,
+    registerUsecase: registerUsecase,
+    repo: repo,
+  );
+});
