@@ -12,50 +12,54 @@ class SplashPage extends ConsumerStatefulWidget {
 }
 
 class _SplashPageState extends ConsumerState<SplashPage> {
-  bool _loading = true;
-
   @override
   void initState() {
     super.initState();
-    _checkSession();
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) {
+        ref.invalidate(authNotifierProvider);
+      }
+    });
   }
-
-  Future<void> _checkSession() async {
-    final user = await ref.read(authControllerProvider).getCurrentUser();
-    if (!mounted) return;
-    setState(() => _loading = false);
-    // In a complete app, navigate to onboarding / citizen / artisan.
-    // For now we just show login screen if not authenticated.
-    if (user == null) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const _LoginPlaceholder()),
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Theme(
-      data: AppTheme.light(),
-      child: Scaffold(
-        body: Center(
-          child: _loading
-              ? const CircularProgressIndicator()
-              : const SizedBox.shrink(),
-        ),
-      ),
-    );
-  }
-}
-
-class _LoginPlaceholder extends StatelessWidget {
-  const _LoginPlaceholder();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Connexion')),
-      body: const Center(child: Text('Écran login à implémenter')),
+      backgroundColor: AppTheme.backgroundColor,
+      body: SafeArea(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Logo vert
+              Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryGreen,
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: const Icon(
+                  Icons.brush,
+                  size: 40,
+                  color: AppTheme.darkText,
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'FasoArtisan',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.darkGreen,
+                ),
+              ),
+              const SizedBox(height: 32),
+              const CircularProgressIndicator(color: AppTheme.primaryGreen),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
