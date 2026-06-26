@@ -1,10 +1,14 @@
 // Ce fichier centralise les constantes de l’application.
-// Il est utilisé par plusieurs couches (core / data / presentation).
+
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AppConstants {
-  // Supabase configuration (placeholders)
-  static const String supabaseUrl = 'https://YOUR_PROJECT.supabase.co';
-  static const String supabaseAnonKey = 'YOUR_ANON_KEY';
+  // Supabase configuration (from .env)
+  static String get supabaseUrl =>
+      dotenv.env['SUPABASE_URL'] ?? 'https://skebhzipxbzstmzqchhd.supabase.co';
+  static String get supabaseAnonKey =>
+      dotenv.env['SUPABASE_ANON_KEY'] ??
+      'sb_publishable_C7sIHh2OpoW-WNkQiytPRw_YM5ojUQw';
 
   // Local storage keys
   static const String prefRoleActifKey = 'role_actif';
@@ -22,4 +26,3 @@ class AppConstants {
     'réparateur téléphone',
   ];
 }
-
