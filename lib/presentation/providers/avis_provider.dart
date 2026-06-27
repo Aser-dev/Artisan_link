@@ -1,58 +1,83 @@
-// Ce provider gère l’état des avis (chargement, succès, erreur).
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/di/injection_container.dart';
 import '../../domain/entities/avis_entity.dart';
-import '../../domain/usecases/avis/submit_avis_usecase.dart';
+import 'auth_provider.dart';
 
 class AvisState {
   final bool isLoading;
-  final AvisEntity? submittedAvis;
-  final String? error;
+  final bool succes;
+  final String? erreur;
+  final AvisEntity? dernierAvis;
 
   const AvisState({
     this.isLoading = false,
-    this.submittedAvis,
-    this.error,
+    this.succes = false,
+    this.erreur,
+    this.dernierAvis,
   });
 
   AvisState copyWith({
     bool? isLoading,
-    AvisEntity? submittedAvis,
-    String? error,
-    bool clearSubmitted = false,
+    bool? succes,
+    String? erreur,
+    AvisEntity? dernierAvis,
+    bool clearErreur = false,
   }) {
     return AvisState(
       isLoading: isLoading ?? this.isLoading,
-      submittedAvis: clearSubmitted ? null : (submittedAvis ?? this.submittedAvis),
-      error: error,
+      succes: succes ?? this.succes,
+      erreur: clearErreur ? null : (erreur ?? this.erreur),
+      dernierAvis: dernierAvis ?? this.dernierAvis,
     );
   }
 }
 
 class AvisNotifier extends StateNotifier<AvisState> {
-  final SubmitAvisUsecase submitAvisUsecase;
+  final Ref _ref;
 
-  AvisNotifier({required this.submitAvisUsecase}) : super(const AvisState());
+  AvisNotifier(this._ref) : super(const AvisState());
 
-  Future<void> submit({
+  Future<void> soumettre({
     required String commerceId,
     required String commentaire,
   }) async {
-    state = state.copyWith(isLoading: true, error: null, clearSubmitted: true);
+    final user = _ref.read(currentUserProvider);
+    if (user == null) return;
+
+    state = state.copyWith(isLoading: true, clearErreur: true, succes: false);
+
     try {
-      final avis = await submitAvisUsecase.call(
-        commerceId: commerceId,
-        commentaire: commentaire,
+      final avis = await _ref
+          .read(submitAvisUsecaseProvider)
+          .call(
+            commerceId: commerceId,
+            auteurId: user.id,
+            auteurNom: user.nom,
+            commentaire: commentaire,
+          );
+
+      state = state.copyWith(isLoading: false, succes: true, dernierAvis: avis);
+    } catch (_) {
+      state = state.copyWith(
+        isLoading: false,
+        erreur: 'Impossible de soumettre votre avis.',
       );
-      state = state.copyWith(isLoading: false, submittedAvis: avis);
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
+
+  void reset() => state = const AvisState();
 }
 
 final avisProvider = StateNotifierProvider<AvisNotifier, AvisState>((ref) {
-  throw UnimplementedError('Connecter l’injection du SubmitAvisUsecase pour AvisNotifier');
+  return AvisNotifier(ref);
 });
 
+final avisListProvider = FutureProvider.family<List<AvisEntity>, String>((
+  ref,
+  commerceId,
+) async {
+  return ref
+      .read(avisRepositoryProvider)
+      .getAvisCommerce(commerceId: commerceId);
+});

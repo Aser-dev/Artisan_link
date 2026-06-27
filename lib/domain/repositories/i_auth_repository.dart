@@ -1,18 +1,18 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
-
+// lib/domain/repositories/i_auth_repository.dart
 import '../entities/user_entity.dart';
 
 abstract class IAuthRepository {
   Future<UserEntity> login({required String email, required String password});
 
   Future<UserEntity> register({
-    required String name,
+    required String nom,
     required String email,
+    required String telephone,
     required String password,
-    required String role,
   });
 
-  Future<void> signOut();
-
-  Future<User?> getCurrentSupabaseUser();
+  Future<void> resetPassword({required String email});
+  Future<void> logout();
+  Future<UserEntity?> getCurrentUser();
+  Future<void> setRole({required String userId, required String role});
 }

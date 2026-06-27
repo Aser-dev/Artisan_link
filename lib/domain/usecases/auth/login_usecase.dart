@@ -1,12 +1,12 @@
+// lib/domain/usecases/auth/login_usecase.dart
+import '../../entities/user_entity.dart';
 import '../../repositories/i_auth_repository.dart';
 
 class LoginUsecase {
-  final IAuthRepository repo;
+  final IAuthRepository repository;
+  const LoginUsecase(this.repository);
 
-  LoginUsecase(this.repo);
-
-  Future login({required String email, required String password}) {
-    return repo.login(email: email, password: password);
+  Future<UserEntity> call({required String email, required String password}) {
+    return repository.login(email: email, password: password);
   }
 }
-

@@ -1,14 +1,15 @@
-// Ce fichier fabrique le client Supabase unique utilisé dans l’application.
-
+// lib/core/network/supabase_client.dart
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../utils/constants.dart';
+// NOTE: wrapper conservé uniquement si besoin.
+// Le projet utilise Supabase.instance.client directement via providers.
+class SupabaseClientWrapper {
+  late final SupabaseClient client;
 
-class SupabaseClientFactory {
-  SupabaseClientFactory();
-
-  SupabaseClient create() {
-    return SupabaseClient(AppConstants.supabaseUrl, AppConstants.supabaseAnonKey);
+  Future<void> init({required String url, required String anonKey}) async {
+    await Supabase.initialize(url: url, anonKey: anonKey);
+    client = Supabase.instance.client;
   }
-}
 
+  SupabaseClient get() => client;
+}

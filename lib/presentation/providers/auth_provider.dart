@@ -1,149 +1,117 @@
-// Ce provider gère la logique d'authentification via Riverpod StateNotifier.
-
-import 'dart:async';
-
+// lib/presentation/providers/auth_provider.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-
-import '../../core/di/injection_container.dart';
 import '../../domain/entities/user_entity.dart';
-import '../../domain/repositories/i_auth_repository.dart';
-import '../../domain/usecases/auth/login_usecase.dart';
-import '../../domain/usecases/auth/register_usecase.dart';
+import '../../core/di/injection_container.dart';
 
-/// État de l'authentification pour l'UI
-class AuthUiState {
-  final bool isLoading;
+class AuthState {
   final UserEntity? user;
-  final String? error;
-  final bool isAuthenticated;
+  final bool isLoading;
+  final String? erreur;
 
-  const AuthUiState({
-    this.isLoading = false,
-    this.user,
-    this.error,
-    this.isAuthenticated = false,
-  });
+  const AuthState({this.user, this.isLoading = false, this.erreur});
 
-  AuthUiState copyWith({
-    bool? isLoading,
+  AuthState copyWith({
     UserEntity? user,
-    String? error,
-    bool? isAuthenticated,
+    bool? isLoading,
+    String? erreur,
+    bool clearErreur = false,
   }) {
-    return AuthUiState(
-      isLoading: isLoading ?? this.isLoading,
+    return AuthState(
       user: user ?? this.user,
-      error: error,
-      isAuthenticated: isAuthenticated ?? this.isAuthenticated,
+      isLoading: isLoading ?? this.isLoading,
+      erreur: clearErreur ? null : erreur ?? this.erreur,
     );
   }
-
-  AuthUiState clearError() => copyWith(error: null);
 }
 
-class AuthNotifier extends StateNotifier<AuthUiState> {
-  final LoginUsecase loginUsecase;
-  final RegisterUsecase registerUsecase;
-  final IAuthRepository repo;
-  StreamSubscription<AuthState>? _authSubscription;
-
-  AuthNotifier({
-    required this.loginUsecase,
-    required this.registerUsecase,
-    required this.repo,
-  }) : super(const AuthUiState()) {
-    _listenToAuthChanges();
+class AuthNotifier extends StateNotifier<AuthState> {
+  final Ref _ref;
+  AuthNotifier(this._ref) : super(const AuthState()) {
+    _init();
   }
 
-  void _listenToAuthChanges() {
-    _authSubscription = Supabase.instance.client.auth.onAuthStateChange.listen((
-      event,
-    ) async {
-      if (event.session?.user != null) {
-        final supabaseUser = event.session!.user;
-        final user = UserEntity(
-          id: supabaseUser.id,
-          name: supabaseUser.userMetadata?['name']?.toString() ?? '',
-          email: supabaseUser.email ?? '',
-          role: supabaseUser.userMetadata?['role']?.toString() ?? '',
-        );
-        state = state.copyWith(
-          user: user,
-          isAuthenticated: true,
-          isLoading: false,
-          error: null,
-        );
-      } else {
-        state = const AuthUiState();
-      }
-    });
-  }
-
-  Future<void> login(String email, String password) async {
-    state = state.copyWith(isLoading: true, error: null);
+  Future<void> _init() async {
+    state = state.copyWith(isLoading: true);
     try {
-      await loginUsecase.login(email: email, password: password);
-      // L'état sera mis à jour via onAuthStateChange
+      final user = await _ref.read(authRepositoryProvider).getCurrentUser();
+      state = state.copyWith(user: user, isLoading: false);
+    } catch (_) {
+      state = state.copyWith(isLoading: false);
+    }
+  }
+
+  Future<void> login({required String email, required String password}) async {
+    state = state.copyWith(isLoading: true, clearErreur: true);
+    try {
+      final user = await _ref
+          .read(loginUsecaseProvider)
+          .call(email: email, password: password);
+      state = state.copyWith(user: user, isLoading: false);
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(isLoading: false, erreur: e.toString());
     }
   }
 
   Future<void> register({
-    required String name,
+    required String nom,
     required String email,
+    required String telephone,
     required String password,
-    required String role,
   }) async {
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true, clearErreur: true);
     try {
-      await registerUsecase.register(
-        name: name,
-        email: email,
-        password: password,
-        role: role,
+      final user = await _ref
+          .read(registerUsecaseProvider)
+          .call(
+            nom: nom,
+            email: email,
+            telephone: telephone,
+            password: password,
+          );
+      state = state.copyWith(user: user, isLoading: false);
+    } catch (e) {
+      state = state.copyWith(isLoading: false, erreur: e.toString());
+    }
+  }
+
+  Future<bool> resetPassword({required String email}) async {
+    state = state.copyWith(isLoading: true, clearErreur: true);
+    try {
+      await _ref.read(resetPasswordUsecaseProvider).call(email: email);
+      state = state.copyWith(isLoading: false);
+      return true;
+    } catch (e) {
+      state = state.copyWith(isLoading: false, erreur: e.toString());
+      return false;
+    }
+  }
+
+  Future<void> setRole({required String role}) async {
+    if (state.user == null) return;
+    state = state.copyWith(isLoading: true);
+    try {
+      await _ref
+          .read(setRoleUsecaseProvider)
+          .call(userId: state.user!.id, role: role);
+      state = state.copyWith(
+        user: state.user!.copyWith(roleActif: role, onboardingFait: true),
+        isLoading: false,
       );
-      // L'état sera mis à jour via onAuthStateChange
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(isLoading: false, erreur: e.toString());
     }
   }
 
-  Future<void> signOut() async {
-    await repo.signOut();
-    state = const AuthUiState();
-  }
-
-  Future<void> resetPassword(String email) async {
-    state = state.copyWith(isLoading: true, error: null);
-    try {
-      await Supabase.instance.client.auth.resetPasswordForEmail(email);
-      state = state.copyWith(isLoading: false, error: null);
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
-    }
-  }
-
-  void clearError() => state = state.clearError();
-
-  @override
-  void dispose() {
-    _authSubscription?.cancel();
-    super.dispose();
+  Future<void> logout() async {
+    await _ref.read(authRepositoryProvider).logout();
+    state = const AuthState();
   }
 }
 
-final authNotifierProvider = StateNotifierProvider<AuthNotifier, AuthUiState>((
-  ref,
-) {
-  final repo = ref.watch(iAuthRepositoryProvider);
-  final loginUsecase = ref.watch(loginUsecaseProvider);
-  final registerUsecase = ref.watch(registerUsecaseProvider);
+final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
+  return AuthNotifier(ref);
+});
 
-  return AuthNotifier(
-    loginUsecase: loginUsecase,
-    registerUsecase: registerUsecase,
-    repo: repo,
-  );
+final currentUserProvider = Provider<UserEntity?>((ref) {
+  return ref.watch(authProvider).user;
 });

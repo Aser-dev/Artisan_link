@@ -1,24 +1,35 @@
+// lib/presentation/widgets/rating_stars.dart
 import 'package:flutter/material.dart';
 
 class RatingStars extends StatelessWidget {
   final double rating;
+  final double size;
+  final Color color;
 
-  const RatingStars({super.key, required this.rating});
+  const RatingStars({
+    super.key,
+    required this.rating,
+    this.size = 18,
+    this.color = Colors.amber,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final fullStars = rating.floor().clamp(0, 5);
+    final rounded = (rating * 2).round() / 2;
+    final full = rounded.floor();
+    final half = rounded - full >= 0.5;
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: List.generate(5, (i) {
-        final isFull = i < fullStars;
         return Icon(
-          isFull ? Icons.star : Icons.star_border,
-          size: 18,
-          color: isFull ? Colors.amber : Colors.grey,
+          i < full
+              ? Icons.star
+              : (i == full && half ? Icons.star_half : Icons.star_border),
+          color: color,
+          size: size,
         );
       }),
     );
   }
 }
-

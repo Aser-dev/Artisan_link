@@ -1,9 +1,10 @@
+// lib/presentation/pages/auth/login_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-
-import '../../../core/theme/app_theme.dart';
 import '../../providers/auth_provider.dart';
+import '../../../core/utils/validators.dart';
+import '../../../core/theme/app_theme.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -12,25 +13,21 @@ class LoginPage extends ConsumerStatefulWidget {
   ConsumerState<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginPageState extends ConsumerState<LoginPage>
-    with SingleTickerProviderStateMixin {
+class _LoginPageState extends ConsumerState<LoginPage> with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
-  // Champs Connexion
   final _loginFormKey = GlobalKey<FormState>();
-  final _loginEmailController = TextEditingController();
-  final _loginPasswordController = TextEditingController();
-  bool _obscureLoginPassword = true;
+  final _loginEmailCtrl = TextEditingController();
+  final _loginPasswordCtrl = TextEditingController();
+  bool _loginMdpVisible = false;
 
-  // Champs Inscription
   final _registerFormKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _registerEmailController = TextEditingController();
-  final _registerPasswordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
-  bool _obscureRegisterPassword = true;
-  bool _obscureConfirmPassword = true;
-  String _selectedRole = 'citoyen';
+  final _registerNomCtrl = TextEditingController();
+  final _registerEmailCtrl = TextEditingController();
+  final _registerTelCtrl = TextEditingController();
+  final _registerPasswordCtrl = TextEditingController();
+  final _registerConfirmCtrl = TextEditingController();
+  bool _registerMdpVisible = false;
 
   @override
   void initState() {
@@ -41,66 +38,64 @@ class _LoginPageState extends ConsumerState<LoginPage>
   @override
   void dispose() {
     _tabController.dispose();
-    _loginEmailController.dispose();
-    _loginPasswordController.dispose();
-    _nameController.dispose();
-    _registerEmailController.dispose();
-    _registerPasswordController.dispose();
-    _confirmPasswordController.dispose();
+    _loginEmailCtrl.dispose();
+    _loginPasswordCtrl.dispose();
+    _registerNomCtrl.dispose();
+    _registerEmailCtrl.dispose();
+    _registerTelCtrl.dispose();
+    _registerPasswordCtrl.dispose();
+    _registerConfirmCtrl.dispose();
     super.dispose();
   }
 
-  // ====== LOGIN ======
-  Future<void> _handleLogin() async {
+  Future<void> _seConnecter() async {
     if (!_loginFormKey.currentState!.validate()) return;
-    ref.read(authNotifierProvider.notifier).clearError();
-    await ref
-        .read(authNotifierProvider.notifier)
-        .login(
-          _loginEmailController.text.trim(),
-          _loginPasswordController.text,
-        );
+    await ref.read(authProvider.notifier).login(
+      email: _loginEmailCtrl.text.trim(),
+      password: _loginPasswordCtrl.text,
+    );
+    if (!mounted) return;
+    final state = ref.read(authProvider);
+    if (state.erreur == null && state.user != null) {
+      context.go(state.user!.onboardingFait
+          ? (state.user!.estArtisan ? '/artisan/dashboard' : '/citoyen')
+          : '/onboarding');
+    }
   }
 
-  // ====== REGISTER ======
-  Future<void> _handleRegister() async {
+  Future<void> _sInscrire() async {
     if (!_registerFormKey.currentState!.validate()) return;
-    ref.read(authNotifierProvider.notifier).clearError();
-    await ref
-        .read(authNotifierProvider.notifier)
-        .register(
-          name: _nameController.text.trim(),
-          email: _registerEmailController.text.trim(),
-          password: _registerPasswordController.text,
-          role: _selectedRole,
-        );
+    await ref.read(authProvider.notifier).register(
+      nom: _registerNomCtrl.text.trim(),
+      email: _registerEmailCtrl.text.trim(),
+      telephone: _registerTelCtrl.text.trim(),
+      password: _registerPasswordCtrl.text,
+    );
+    if (!mounted) return;
+    final state = ref.read(authProvider);
+    if (state.erreur == null && state.user != null) {
+      context.go('/onboarding');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final authState = ref.watch(authNotifierProvider);
+    final authState = ref.watch(authProvider);
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
+      backgroundColor: AppTheme.background,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 16),
-              // En-tête avec nom app + icône aide
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'FasoArtisan',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.darkGreen,
-                    ),
-                  ),
+                  const Text('ArtisanBF',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.primaryDark)),
                   IconButton(
                     icon: const Icon(Icons.help_outline, color: Colors.grey),
                     onPressed: () {},
@@ -108,46 +103,31 @@ class _LoginPageState extends ConsumerState<LoginPage>
                 ],
               ),
               const SizedBox(height: 40),
-              // Titre accrocheur
               const Text.rich(
                 TextSpan(
                   text: 'Propulsez votre\n',
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.darkText,
-                    height: 1.2,
-                  ),
-                  children: [
-                    TextSpan(
-                      text: 'artisanat.',
-                      style: TextStyle(color: AppTheme.darkGreen),
-                    ),
-                  ],
+                  style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: AppTheme.textDark, height: 1.2),
+                  children: [TextSpan(text: 'artisanat.', style: TextStyle(color: AppTheme.primaryDark))],
                 ),
               ),
               const SizedBox(height: 8),
-              const Text(
-                'Connectez-vous pour gérer votre atelier numérique.',
-                style: TextStyle(color: Colors.grey, fontSize: 15),
-              ),
+              const Text('Connectez-vous pour accéder à votre espace.',
+                  style: TextStyle(color: Colors.grey, fontSize: 15)),
               const SizedBox(height: 32),
 
-              // Cadre formulaire blanc
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: AppTheme.borderColor),
+                  border: Border.all(color: AppTheme.borderLight),
                 ),
                 child: Column(
                   children: [
-                    // Onglets Connexion / Inscription
                     Container(
                       height: 48,
                       decoration: BoxDecoration(
-                        color: AppTheme.inputFillColor,
+                        color: AppTheme.inputBg,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: TabBar(
@@ -156,36 +136,23 @@ class _LoginPageState extends ConsumerState<LoginPage>
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(10),
                           boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 4,
-                              offset: const Offset(0, 2),
-                            ),
+                            BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4, offset: const Offset(0, 2)),
                           ],
                         ),
-                        labelColor: AppTheme.darkText,
+                        labelColor: AppTheme.textDark,
                         unselectedLabelColor: Colors.grey,
-                        labelStyle: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
-                        tabs: const [
-                          Tab(text: 'Connexion'),
-                          Tab(text: 'Inscription'),
-                        ],
+                        labelStyle: const TextStyle(fontWeight: FontWeight.bold),
+                        tabs: const [Tab(text: 'Connexion'), Tab(text: 'Inscription')],
                       ),
                     ),
-                    const SizedBox(height: 24),
-
-                    // Contenu des tabs
+                    const SizedBox(height: 4),
                     SizedBox(
-                      height: _tabController.index == 0 ? 340 : 520,
+                      height: 420,
                       child: TabBarView(
                         controller: _tabController,
                         children: [
-                          // ====== TAB CONNEXION ======
-                          _buildLoginTab(authState),
-                          // ====== TAB INSCRIPTION ======
-                          _buildRegisterTab(authState),
+                          _buildLoginForm(authState),
+                          _buildRegisterForm(authState),
                         ],
                       ),
                     ),
@@ -200,315 +167,204 @@ class _LoginPageState extends ConsumerState<LoginPage>
     );
   }
 
-  // ========================
-  // TAB CONNEXION
-  // ========================
-  Widget _buildLoginTab(AuthUiState authState) {
+  Widget _buildLoginForm(AuthState authState) {
     return Form(
       key: _loginFormKey,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildInputLabel('Email professionnel'),
-          const SizedBox(height: 8),
-          TextFormField(
-            controller: _loginEmailController,
-            keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(
-              hintText: 'votre@email.com',
-              prefixIcon: Icon(Icons.mail_outline, color: Colors.grey),
-            ),
-            validator: (v) {
-              if (v == null || v.trim().isEmpty) return 'Email requis';
-              if (!RegExp(
-                r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-              ).hasMatch(v.trim()))
-                return 'Email invalide';
-              return null;
-            },
+          const SizedBox(height: 20),
+          _buildInput(
+            label: 'Email',
+            hint: 'votre@email.com',
+            icon: Icons.mail_outline,
+            controller: _loginEmailCtrl,
+            validator: Validators.email,
           ),
           const SizedBox(height: 16),
-          _buildInputLabel('Mot de passe'),
-          const SizedBox(height: 8),
-          TextFormField(
-            controller: _loginPasswordController,
-            obscureText: _obscureLoginPassword,
-            decoration: InputDecoration(
-              hintText: '••••••••',
-              prefixIcon: const Icon(Icons.lock_outline, color: Colors.grey),
-              suffixIcon: IconButton(
-                icon: Icon(
-                  _obscureLoginPassword
-                      ? Icons.visibility_outlined
-                      : Icons.visibility_off_outlined,
-                  color: Colors.grey,
-                ),
-                onPressed: () => setState(
-                  () => _obscureLoginPassword = !_obscureLoginPassword,
-                ),
-              ),
-            ),
-            validator: (v) {
-              if (v == null || v.isEmpty) return 'Mot de passe requis';
-              return null;
-            },
+          _buildInput(
+            label: 'Mot de passe',
+            hint: '••••••••',
+            icon: Icons.lock_outline,
+            controller: _loginPasswordCtrl,
+            isPassword: true,
+            mdpVisible: _loginMdpVisible,
+            onToggleMdp: () => setState(() => _loginMdpVisible = !_loginMdpVisible),
+            validator: Validators.password,
           ),
           Align(
             alignment: Alignment.centerRight,
             child: TextButton(
               onPressed: () => context.push('/reset-password'),
-              child: const Text(
-                'Mot de passe oublié ?',
-                style: TextStyle(color: Color(0xFF495057)),
-              ),
+              child: const Text('Mot de passe oublié ?', style: TextStyle(color: Color(0xFF495057))),
             ),
           ),
-
-          // Erreur
-          if (authState.error != null) ...[
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.red[50],
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.error_outline, color: Colors.red, size: 18),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      authState.error!,
-                      style: const TextStyle(color: Colors.red, fontSize: 13),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
-          ],
-
-          const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            height: 52,
-            child: ElevatedButton(
-              onPressed: authState.isLoading ? null : _handleLogin,
-              child: authState.isLoading
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: AppTheme.darkText,
-                      ),
-                    )
-                  : const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "Accéder à l'espace ",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                        Icon(Icons.arrow_forward, size: 18),
-                      ],
-                    ),
-            ),
+          if (authState.erreur != null) _buildErreur(authState.erreur!),
+          const SizedBox(height: 8),
+          _buildBoutonPrincipal(
+            label: 'Accéder à l\'espace',
+            isLoading: authState.isLoading,
+            onPressed: _seConnecter,
           ),
         ],
       ),
     );
   }
 
-  // ========================
-  // TAB INSCRIPTION
-  // ========================
-  Widget _buildRegisterTab(AuthUiState authState) {
+  Widget _buildRegisterForm(AuthState authState) {
     return Form(
       key: _registerFormKey,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildInputLabel('Nom complet'),
-          const SizedBox(height: 8),
-          TextFormField(
-            controller: _nameController,
-            textCapitalization: TextCapitalization.words,
-            decoration: const InputDecoration(
-              hintText: 'Votre nom',
-              prefixIcon: Icon(Icons.person_outline, color: Colors.grey),
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            const SizedBox(height: 20),
+            _buildInput(
+              label: 'Nom complet',
+              hint: 'Amadou Ouédraogo',
+              icon: Icons.person_outline,
+              controller: _registerNomCtrl,
+              validator: Validators.nom,
             ),
-            validator: (v) {
-              if (v == null || v.trim().isEmpty) return 'Nom requis';
-              if (v.trim().length < 2) return 'Nom trop court';
-              return null;
-            },
-          ),
-          const SizedBox(height: 12),
-          _buildInputLabel('Email'),
-          const SizedBox(height: 8),
-          TextFormField(
-            controller: _registerEmailController,
-            keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(
-              hintText: 'votre@email.com',
-              prefixIcon: Icon(Icons.mail_outline, color: Colors.grey),
+            const SizedBox(height: 12),
+            _buildInput(
+              label: 'Email',
+              hint: 'votre@email.com',
+              icon: Icons.mail_outline,
+              controller: _registerEmailCtrl,
+              validator: Validators.email,
             ),
-            validator: (v) {
-              if (v == null || v.trim().isEmpty) return 'Email requis';
-              if (!RegExp(
-                r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-              ).hasMatch(v.trim()))
-                return 'Email invalide';
-              return null;
-            },
-          ),
-          const SizedBox(height: 12),
-          _buildInputLabel('Vous êtes'),
-          const SizedBox(height: 8),
-          DropdownButtonFormField<String>(
-            value: _selectedRole,
-            decoration: const InputDecoration(
-              hintText: 'Sélectionner',
-              prefixIcon: Icon(Icons.badge_outlined, color: Colors.grey),
-            ),
-            items: const [
-              DropdownMenuItem(
-                value: 'citoyen',
-                child: Text('Citoyen (je cherche un artisan)'),
-              ),
-              DropdownMenuItem(
-                value: 'artisan',
-                child: Text('Artisan (je propose mes services)'),
-              ),
-            ],
-            onChanged: (v) {
-              if (v != null) setState(() => _selectedRole = v);
-            },
-          ),
-          const SizedBox(height: 12),
-          _buildInputLabel('Mot de passe'),
-          const SizedBox(height: 8),
-          TextFormField(
-            controller: _registerPasswordController,
-            obscureText: _obscureRegisterPassword,
-            decoration: InputDecoration(
-              hintText: 'Minimum 6 caractères',
-              prefixIcon: const Icon(Icons.lock_outline, color: Colors.grey),
-              suffixIcon: IconButton(
-                icon: Icon(
-                  _obscureRegisterPassword
-                      ? Icons.visibility_outlined
-                      : Icons.visibility_off_outlined,
-                  color: Colors.grey,
-                ),
-                onPressed: () => setState(
-                  () => _obscureRegisterPassword = !_obscureRegisterPassword,
-                ),
-              ),
-            ),
-            validator: (v) {
-              if (v == null || v.isEmpty) return 'Mot de passe requis';
-              if (v.length < 6) return 'Minimum 6 caractères';
-              return null;
-            },
-          ),
-          const SizedBox(height: 12),
-          _buildInputLabel('Confirmer le mot de passe'),
-          const SizedBox(height: 8),
-          TextFormField(
-            controller: _confirmPasswordController,
-            obscureText: _obscureConfirmPassword,
-            decoration: InputDecoration(
-              hintText: 'Retapez le mot de passe',
-              prefixIcon: const Icon(Icons.lock_outline, color: Colors.grey),
-              suffixIcon: IconButton(
-                icon: Icon(
-                  _obscureConfirmPassword
-                      ? Icons.visibility_outlined
-                      : Icons.visibility_off_outlined,
-                  color: Colors.grey,
-                ),
-                onPressed: () => setState(
-                  () => _obscureConfirmPassword = !_obscureConfirmPassword,
-                ),
-              ),
-            ),
-            validator: (v) {
-              if (v != _registerPasswordController.text) {
-                return 'Les mots de passe ne correspondent pas';
-              }
-              return null;
-            },
-          ),
-
-          // Erreur
-          if (authState.error != null) ...[
-            const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.red[50],
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.error_outline, color: Colors.red, size: 18),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      authState.error!,
-                      style: const TextStyle(color: Colors.red, fontSize: 13),
+            const SizedBox(height: 12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Téléphone', style: TextStyle(fontWeight: FontWeight.w600)),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                      decoration: BoxDecoration(
+                        color: AppTheme.inputBg,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Text('🇧🇫 +226', style: TextStyle(fontWeight: FontWeight.bold)),
                     ),
-                  ),
-                ],
-              ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: TextFormField(
+                        controller: _registerTelCtrl,
+                        keyboardType: TextInputType.phone,
+                        decoration: const InputDecoration(hintText: '00 00 00 00', prefixIcon: Icon(Icons.phone_outlined)),
+                        validator: Validators.telephone,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            _buildInput(
+              label: 'Mot de passe',
+              hint: '••••••••',
+              icon: Icons.lock_outline,
+              controller: _registerPasswordCtrl,
+              isPassword: true,
+              mdpVisible: _registerMdpVisible,
+              onToggleMdp: () => setState(() => _registerMdpVisible = !_registerMdpVisible),
+              validator: Validators.password,
+            ),
+            const SizedBox(height: 12),
+            _buildInput(
+              label: 'Confirmer',
+              hint: '••••••••',
+              icon: Icons.lock_outline,
+              controller: _registerConfirmCtrl,
+              isPassword: true,
+              mdpVisible: _registerMdpVisible,
+              validator: (v) => v == _registerPasswordCtrl.text ? null : 'Les mots de passe ne correspondent pas',
+            ),
+            if (authState.erreur != null) _buildErreur(authState.erreur!),
+            const SizedBox(height: 16),
+            _buildBoutonPrincipal(
+              label: 'Créer mon compte',
+              isLoading: authState.isLoading,
+              onPressed: _sInscrire,
             ),
           ],
-          const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            height: 52,
-            child: ElevatedButton(
-              onPressed: authState.isLoading ? null : _handleRegister,
-              child: authState.isLoading
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: AppTheme.darkText,
-                      ),
-                    )
-                  : const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "S'inscrire ",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                        Icon(Icons.arrow_forward, size: 18),
-                      ],
-                    ),
-            ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInput({
+    required String label,
+    required String hint,
+    required IconData icon,
+    required TextEditingController controller,
+    bool isPassword = false,
+    bool mdpVisible = false,
+    VoidCallback? onToggleMdp,
+    String? Function(String?)? validator,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
+        const SizedBox(height: 8),
+        TextFormField(
+          controller: controller,
+          obscureText: isPassword && !mdpVisible,
+          validator: validator,
+          decoration: InputDecoration(
+            hintText: hint,
+            prefixIcon: Icon(icon, color: Colors.grey),
+            suffixIcon: isPassword
+                ? IconButton(
+                    icon: Icon(mdpVisible ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                        color: Colors.grey),
+                    onPressed: onToggleMdp,
+                  )
+                : null,
           ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildErreur(String message) {
+    return Container(
+      margin: const EdgeInsets.only(top: 8),
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(color: Colors.red[50], borderRadius: BorderRadius.circular(10)),
+      child: Row(
+        children: [
+          const Icon(Icons.error_outline, color: Colors.red, size: 16),
+          const SizedBox(width: 8),
+          Expanded(child: Text(message, style: const TextStyle(color: Colors.red, fontSize: 12))),
         ],
       ),
     );
   }
 
-  Widget _buildInputLabel(String text) {
-    return Text(
-      text,
-      style: const TextStyle(
-        fontWeight: FontWeight.w600,
-        color: AppTheme.darkText,
+  Widget _buildBoutonPrincipal({
+    required String label,
+    required bool isLoading,
+    required VoidCallback onPressed,
+  }) {
+    return SizedBox(
+      width: double.infinity,
+      height: 52,
+      child: ElevatedButton(
+        onPressed: isLoading ? null : onPressed,
+        child: isLoading
+            ? const SizedBox(height: 22, width: 22, child: CircularProgressIndicator(color: Color(0xFF1E1E1E), strokeWidth: 2))
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  const SizedBox(width: 8),
+                  const Icon(Icons.arrow_forward, size: 18),
+                ],
+              ),
       ),
     );
   }

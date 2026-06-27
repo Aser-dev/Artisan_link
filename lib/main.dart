@@ -1,33 +1,32 @@
+// lib/main.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-
-import 'core/router/app_router.dart';
+import 'core/routes/app_router.dart';
 import 'core/theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: '.env');
 
+  // Initialiser Supabase (remplacer par vos vraies clés)
   await Supabase.initialize(
-    url: dotenv.env['SUPABASE_URL']!,
-    publishableKey: dotenv.env['SUPABASE_ANON_KEY']!,
+    url: 'https://votre-projet.supabase.co',
+    anonKey: 'votre-clé-anon',
   );
 
-  runApp(const ProviderScope(child: MyApp()));
+  runApp(const ProviderScope(child: ArtisanBfApp()));
 }
 
-class MyApp extends ConsumerWidget {
-  const MyApp({super.key});
+class ArtisanBfApp extends StatelessWidget {
+  const ArtisanBfApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final router = ref.watch(appRouterProvider);
+  Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: 'artisan_bf',
+      title: 'ArtisanBF',
+      debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
-      routerConfig: router,
+      routerConfig: appRouter,
     );
   }
 }
