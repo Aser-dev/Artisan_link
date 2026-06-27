@@ -26,7 +26,7 @@ class SupabaseAuthDatasource {
       password: password,
     );
     if (response.user == null) throw Exception('Inscription échouée');
-    await _client.from('profile').insert({
+    await _client.from('profiles').insert({
       'id': response.user!.id,
       'nom': nom,
       'email': email,
@@ -59,7 +59,7 @@ class SupabaseAuthDatasource {
   }
 
   Future<void> setRole({required String userId, required String role}) async {
-    await _client.from('profile').update({
+    await _client.from('profiles').update({
       'role_actif': role,
       'onboarding_fait': true,
     }).eq('id', userId);
@@ -67,7 +67,7 @@ class SupabaseAuthDatasource {
 
   Future<UserDto> _getProfile(String userId, String email) async {
     final data = await _client
-        .from('profile')
+        .from('profiles')
         .select()
         .eq('id', userId)
         .single();
