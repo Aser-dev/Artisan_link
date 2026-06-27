@@ -7,6 +7,5 @@ import '../network/supabase_client.dart';
 
 /// Provider du client Supabase utilisé dans toute l’application.
 final supabaseClientProvider = Provider<SupabaseClient>((ref) {
-  return SupabaseClientFactory().create();
+  return Supabase.instance.client;
 });
-

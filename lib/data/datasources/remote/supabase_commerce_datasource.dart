@@ -1,112 +1,112 @@
+// lib/data/datasources/remote/supabase_commerce_datasource.dart
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../models/commerce_dto.dart';
 
 class SupabaseCommerceDatasource {
-  final SupabaseClient client;
+  final SupabaseClient _client;
+  SupabaseCommerceDatasource(this._client);
 
-  SupabaseCommerceDatasource(this.client);
-
-  // IMPORTANT: Table/column names may need alignment with your schema.
-
-  Future<List<Map<String, dynamic>>> getNearby({
+  Future<List<CommerceDto>> getNearbyCommerces({
     required double latitude,
     required double longitude,
-    required double radiusKm,
-    required String category,
+    double rayonKm = 5.0,
+    String? categorie,
+    double? noteMinimale,
   }) async {
-    // TODO: Implement geospatial query based on your schema.
-    // Placeholder: simple filter by category.
-    final response = await client
+    final minLat = latitude - (rayonKm / 111);
+    final maxLat = latitude + (rayonKm / 111);
+    final minLon = longitude - (rayonKm / 111);
+    final maxLon = longitude + (rayonKm / 111);
+
+    // IMPORTANT: l'API de filtrage dépend de la version supabase_flutter.
+    // Ici on évite .eq/.gte/.lte/.filter non supportés par ton SDK.
+    // Stratégie MVP: récupération d'abord (est_publie=true via query string)
+    // puis filtrage local.
+
+    final data = await _client
         .from('commerces')
         .select()
-        .eq('category', category);
+        .order('note_moyenne', ascending: false)
+        .limit(200);
 
-    return List<Map<String, dynamic>>.from(response);
+    final list = (data as List).map((e) => CommerceDto.fromJson(e)).toList();
+
+    final filtered = list.where((c) {
+      if (!c.estPublie) return false;
+      if (categorie != null &&
+          categorie.isNotEmpty &&
+          c.categorie != categorie) {
+        return false;
+      }
+      if (noteMinimale != null && c.noteMoyenne < noteMinimale) {
+        return false;
+      }
+      if (c.latitude == null || c.longitude == null) return false;
+
+      return c.latitude! >= minLat &&
+          c.latitude! <= maxLat &&
+          c.longitude! >= minLon &&
+          c.longitude! <= maxLon;
+    }).toList();
+
+    return filtered;
   }
 
-  Future<List<Map<String, dynamic>>> getMyCommerces() async {
-    final user = client.auth.currentUser;
-    if (user == null) throw StateError('Not authenticated');
-
-    final response = await client
+  Future<List<CommerceDto>> searchCommerces({required String query}) async {
+    final data = await _client
         .from('commerces')
         .select()
-        .eq('owner_id', user.id);
-
-    return List<Map<String, dynamic>>.from(response);
+        .eq('est_publie', true)
+        .ilike('nom', '%$query%')
+        .order('note_moyenne', ascending: false)
+        .limit(20);
+    return (data as List).map((e) => CommerceDto.fromJson(e)).toList();
   }
 
-  Future<Map<String, dynamic>> createCommerce({
-    required String ownerId,
-    required String name,
-    required String category,
-    required double latitude,
-    required double longitude,
-    required String address,
-    required String note,
-  }) async {
-    final response = await client
+  Future<CommerceDto> getCommerceById({required String id}) async {
+    final data = await _client.from('commerces').select().eq('id', id).single();
+    return CommerceDto.fromJson(data);
+  }
+
+  Future<List<CommerceDto>> getMesCommerces({required String userId}) async {
+    final data = await _client
         .from('commerces')
-        .insert({
-          'owner_id': ownerId,
-          'name': name,
-          'category': category,
-          'latitude': latitude,
-          'longitude': longitude,
-          'address': address,
-          'note': note,
-          'is_published': false,
-        })
+        .select()
+        .eq('user_id', userId)
+        .order('created_at', ascending: false);
+    return (data as List).map((e) => CommerceDto.fromJson(e)).toList();
+  }
+
+  Future<CommerceDto> createCommerce({required CommerceDto dto}) async {
+    final data = await _client
+        .from('commerces')
+        .insert(dto.toJson())
         .select()
         .single();
-
-    return Map<String, dynamic>.from(response);
+    return CommerceDto.fromJson(data);
   }
 
-  Future<Map<String, dynamic>> updateCommerce({
-    required String commerceId,
-    required String name,
-    required String category,
-    required double latitude,
-    required double longitude,
-    required String address,
-    required String note,
-  }) async {
-    final response = await client
+  Future<CommerceDto> updateCommerce({required CommerceDto dto}) async {
+    final data = await _client
         .from('commerces')
-        .update({
-          'name': name,
-          'category': category,
-          'latitude': latitude,
-          'longitude': longitude,
-          'address': address,
-          'note': note,
-        })
-        .eq('id', commerceId)
+        .update(dto.toJson())
+        .eq('id', dto.id)
         .select()
         .single();
-
-    return Map<String, dynamic>.from(response);
+    return CommerceDto.fromJson(data);
   }
 
   Future<void> togglePublication({
     required String commerceId,
-    required bool publish,
+    required bool publier,
   }) async {
-    await client
+    await _client
         .from('commerces')
-        .update({'is_published': publish})
+        .update({'est_publie': publier})
         .eq('id', commerceId);
   }
 
-  Future<Map<String, dynamic>?> getCommerceById({
-    required String commerceId,
-  }) async {
-    final response = await client
-        .from('commerces')
-        .select()
-        .eq('id', commerceId)
-        .maybeSingle();
-
-    return response == null ? null : Map<String, dynamic>.from(response);
+  Future<void> deleteCommerce({required String commerceId}) async {
+    await _client.from('commerces').delete().eq('id', commerceId);
   }
 }

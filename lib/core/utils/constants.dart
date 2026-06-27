@@ -1,25 +1,29 @@
-// Ce fichier centralise les constantes de l’application.
-// Il est utilisé par plusieurs couches (core / data / presentation).
+// lib/core/constants.dart
+import 'package:latlong2/latlong.dart';
 
 class AppConstants {
-  // Supabase configuration (placeholders)
-  static const String supabaseUrl = 'https://YOUR_PROJECT.supabase.co';
-  static const String supabaseAnonKey = 'YOUR_ANON_KEY';
+  // Rôles
+  static const String roleArtisan = 'artisan';
+  static const String roleCitoyen = 'citoyen';
 
-  // Local storage keys
-  static const String prefRoleActifKey = 'role_actif';
-  static const String prefOnboardingFaitKey = 'onboarding_fait';
+  // Position par défaut (Ouagadougou)
+  static const LatLng ouagadougouCentre = LatLng(12.3714, -1.5347);
 
-  // Liste complète des catégories demandées
-  static const List<String> categories = <String>[
-    'mécanicien',
-    'couturier',
-    'coiffeur',
-    'soudeur',
-    'électricien',
-    'plombier',
-    'menuisier',
-    'réparateur téléphone',
+  // Catégories d'artisans
+  static const List<String> categories = [
+    'Mécanicien',
+    'Couturier',
+    'Coiffeur',
+    'Soudeur',
+    'Électricien',
+    'Menuisier',
+    'Plombier',
+    'Réparateur téléphone',
   ];
-}
 
+  // Messages d'erreur
+  static const String erreurConnexion = 'Impossible de se connecter au serveur.';
+  static const String erreurChampsVides = 'Veuillez remplir tous les champs.';
+  static const String erreurEmailInvalide = 'Adresse email invalide.';
+  static const String erreurMotDePasseCourt = 'Le mot de passe doit contenir au moins 6 caractères.';
+}

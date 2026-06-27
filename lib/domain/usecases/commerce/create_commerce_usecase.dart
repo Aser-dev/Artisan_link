@@ -1,25 +1,12 @@
+// lib/domain/usecases/commerce/create_commerce_usecase.dart
+import '../../entities/commerce_entity.dart';
 import '../../repositories/i_commerce_repository.dart';
 
 class CreateCommerceUsecase {
-  final ICommerceRepository repo;
+  final ICommerceRepository repository;
+  const CreateCommerceUsecase(this.repository);
 
-  CreateCommerceUsecase(this.repo);
-
-  Future call({
-    required String name,
-    required String category,
-    required double latitude,
-    required double longitude,
-    required String address,
-    required String note,
-  }) {
-    return repo.createCommerce(
-      name: name,
-      category: category,
-      latitude: latitude,
-      longitude: longitude,
-      address: address,
-      note: note,
-    );
+  Future<CommerceEntity> call({required CommerceEntity commerce}) {
+    return repository.createCommerce(commerce: commerce);
   }
 }

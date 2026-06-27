@@ -1,11 +1,14 @@
+// lib/domain/usecases/commerce/toggle_publication_usecase.dart
 import '../../repositories/i_commerce_repository.dart';
 
 class TogglePublicationUsecase {
-  final ICommerceRepository repo;
+  final ICommerceRepository repository;
+  const TogglePublicationUsecase(this.repository);
 
-  TogglePublicationUsecase(this.repo);
-
-  Future<void> call({required String commerceId, required bool publish}) {
-    return repo.togglePublication(id: commerceId, publish: publish);
+  Future<void> call({required String commerceId, required bool publier}) {
+    return repository.togglePublication(
+      commerceId: commerceId,
+      publier: publier,
+    );
   }
 }
