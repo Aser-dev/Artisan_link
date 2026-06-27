@@ -1,4 +1,4 @@
-﻿// lib/presentation/pages/citoyen/detail_commerce_page.dart
+// lib/presentation/pages/citoyen/detail_commerce_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -168,7 +168,7 @@ class _DetailCommercePageState extends ConsumerState<DetailCommercePage> {
                         child: ListView.separated(
                           scrollDirection: Axis.horizontal,
                           itemCount: commerce.photos.length,
-                          separatorBuilder: (_) => const SizedBox(width: 8),
+                          separatorBuilder: (_, _) => const SizedBox(width: 8),
                           itemBuilder: (_, i) => ClipRRect(
                             borderRadius: BorderRadius.circular(10),
                             child: Image.network(commerce.photos[i], width: 100, height: 100, fit: BoxFit.cover,
@@ -199,7 +199,7 @@ class _DetailCommercePageState extends ConsumerState<DetailCommercePage> {
 
                     avisAsync.when(
                       loading: () => const Center(child: Padding(padding: EdgeInsets.all(16), child: CircularProgressIndicator(color: AppTheme.primary))),
-                      error: (_) => const Text('Impossible de charger les avis.'),
+                      error: (_, _) => const Text('Impossible de charger les avis.'),
                       data: (avis) => avis.isEmpty
                           ? Container(
                               padding: const EdgeInsets.all(20),

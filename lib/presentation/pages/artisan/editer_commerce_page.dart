@@ -1,4 +1,4 @@
-﻿// lib/presentation/pages/artisan/editer_commerce_page.dart
+// lib/presentation/pages/artisan/editer_commerce_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -152,7 +152,7 @@ class _EditerCommercePageState extends ConsumerState<EditerCommercePage> {
                         child: ListView.separated(
                           scrollDirection: Axis.horizontal,
                           itemCount: commerce.photos.length + 1,
-                          separatorBuilder: (_) => const SizedBox(width: 10),
+                          separatorBuilder: (_, _) => const SizedBox(width: 10),
                           itemBuilder: (ctx, i) {
                             if (i == commerce.photos.length) return _addPhotoBtn();
                             return ClipRRect(

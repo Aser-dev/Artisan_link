@@ -1,11 +1,15 @@
-﻿// lib/presentation/pages/citoyen/liste_recherche_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/commerce_provider.dart';
 import '../../widgets/commerce_card.dart';
 import '../../../core/constants.dart';
+import '../../../core/services/location_service.dart';
 import '../../../core/theme/app_theme.dart';
 import 'detail_commerce_page.dart';
+
+final locationServiceProvider = Provider<LocationService>((ref) {
+  return LocationService();
+});
 
 class ListeRecherchePage extends ConsumerStatefulWidget {
   const ListeRecherchePage({super.key});

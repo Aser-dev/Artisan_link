@@ -4,6 +4,12 @@ import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   static const Color primary = Color(0xFF00450D);
+
+  // Missing theme tokens used by accueil_citoyen_page
+  static const Color background = neutralSand;
+  static const Color tertiaryContainer = Color(0xFFFFF3E0);
+  static const Color onTertiaryContainer = Color(0xFF4A2B00);
+
   static const Color primaryContainer = Color(0xFF1B5E20);
   static const Color onPrimary = Color(0xFFFFFFFF);
   static const Color onPrimaryContainer = Color(0xFF90D689);
@@ -27,7 +33,11 @@ class AppTheme {
   static const Color outlineVariant = Color(0xFFC0C9BB);
   static const Color error = Color(0xFFBA1A1A);
   static const Color errorContainer = Color(0xFFFFDAD6);
-
+ 
+  static const Color deepTeal = Color(0xFF004D40);
+  static const Color secondaryFixed = Color(0xFFFFF3E0);
+  static const Color onSecondaryFixedVariant = Color(0xFF4A2B00);
+  
   static ThemeData light() {
     return ThemeData(
       useMaterial3: true,

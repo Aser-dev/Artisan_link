@@ -1,4 +1,4 @@
-﻿// lib/presentation/pages/artisan/gerer_publication_page.dart
+// lib/presentation/pages/artisan/gerer_publication_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -107,7 +107,7 @@ class _GererPublicationPageState extends ConsumerState<GererPublicationPage> {
             // Card commerce
             commerceAsync.when(
               loading: () => const Center(child: CircularProgressIndicator(color: AppTheme.primary)),
-              error: (_) => const SizedBox.shrink(),
+              error: (_, _) => const SizedBox.shrink(),
               data: (commerce) => _buildCommerceCard(commerce),
             ),
 
