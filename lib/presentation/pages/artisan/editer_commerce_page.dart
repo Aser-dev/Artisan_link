@@ -1,4 +1,4 @@
-// lib/presentation/pages/artisan/editer_commerce_page.dart
+﻿// lib/presentation/pages/artisan/editer_commerce_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -51,7 +51,7 @@ class _EditerCommercePageState extends ConsumerState<EditerCommercePage> {
   Future<void> _sauvegarder(CommerceEntity original) async {
     if (!_formKey.currentState!.validate()) return;
     if (_categorie == null) {
-      _snack('Veuillez sélectionner une catégorie.', error: true);
+      _snack('Veuillez sÃ©lectionner une catÃ©gorie.', error: true);
       return;
     }
     setState(() => _isLoading = true);
@@ -70,7 +70,7 @@ class _EditerCommercePageState extends ConsumerState<EditerCommercePage> {
       await ref.read(updateCommerceUsecaseProvider).call(commerce: updated);
       if (!mounted) return;
       setState(() => _isLoading = false);
-      _snack('Commerce modifié avec succès !');
+      _snack('Commerce modifiÃ© avec succÃ¨s !');
       context.pop();
     } catch (e) {
       if (!mounted) return;
@@ -123,18 +123,17 @@ class _EditerCommercePageState extends ConsumerState<EditerCommercePage> {
                 children: [
                   const Text('Modifier le commerce', style: TextStyle(fontFamily: 'Hanken Grotesk', fontSize: 26, fontWeight: FontWeight.w700, color: AppTheme.primary)),
                   const SizedBox(height: 4),
-                  const Text('Mettez à jour vos informations pour rester visible auprès de vos clients.', style: TextStyle(color: AppTheme.onSurfaceVariant, fontSize: 14, height: 1.4)),
+                  const Text('Mettez Ã  jour vos informations pour rester visible auprÃ¨s de vos clients.', style: TextStyle(color: AppTheme.onSurfaceVariant, fontSize: 14, height: 1.4)),
                   const SizedBox(height: 24),
 
-                  _buildSection(icon: Icons.store_rounded, title: 'Informations Générales', children: [
+                  _buildSection(icon: Icons.store_rounded, title: 'Informations GÃ©nÃ©rales', children: [
                     _buildField(label: 'Nom de l\'entreprise', icon: Icons.badge_outlined, child:
                       TextFormField(controller: _nomCtrl, validator: Validators.nom,
                         decoration: const InputDecoration(hintText: 'Ex: Menuiserie du Sahel'))),
                     const SizedBox(height: 14),
-                    _buildField(label: 'Catégorie', icon: Icons.category_rounded, child:
-                      DropdownButtonFormField<String>(
-                        value: _categorie,
-                        hint: const Text('Sélectionnez un métier'),
+                    _buildField(label: 'CatÃ©gorie', icon: Icons.category_rounded, child:
+                      DropdownButtonFormField<String>(initialValue: _categorie,
+                        hint: const Text('SÃ©lectionnez un mÃ©tier'),
                         items: AppConstants.categories.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
                         onChanged: (v) => setState(() => _categorie = v),
                         decoration: const InputDecoration(),
@@ -142,7 +141,7 @@ class _EditerCommercePageState extends ConsumerState<EditerCommercePage> {
                     const SizedBox(height: 14),
                     _buildField(label: 'Description des services', icon: Icons.description_outlined, child:
                       TextFormField(controller: _descriptionCtrl, maxLines: 3,
-                        decoration: const InputDecoration(hintText: 'Décrivez vos services...'))),
+                        decoration: const InputDecoration(hintText: 'DÃ©crivez vos services...'))),
                   ]),
                   const SizedBox(height: 16),
 
@@ -153,13 +152,13 @@ class _EditerCommercePageState extends ConsumerState<EditerCommercePage> {
                         child: ListView.separated(
                           scrollDirection: Axis.horizontal,
                           itemCount: commerce.photos.length + 1,
-                          separatorBuilder: (_, __) => const SizedBox(width: 10),
+                          separatorBuilder: (_) => const SizedBox(width: 10),
                           itemBuilder: (ctx, i) {
                             if (i == commerce.photos.length) return _addPhotoBtn();
                             return ClipRRect(
                               borderRadius: BorderRadius.circular(12),
                               child: Image.network(commerce.photos[i], width: 120, height: 120, fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => Container(width: 120, height: 120, color: AppTheme.surfaceContainerHighest)),
+                                errorBuilder: (_, _, _) => Container(width: 120, height: 120, color: AppTheme.surfaceContainerHighest)),
                             );
                           },
                         ),
@@ -173,7 +172,7 @@ class _EditerCommercePageState extends ConsumerState<EditerCommercePage> {
                     _buildField(label: 'Adresse', icon: Icons.map_outlined, child:
                       TextFormField(controller: _adresseCtrl, maxLines: 2,
                         validator: (v) => v!.isEmpty ? 'Requis' : null,
-                        decoration: const InputDecoration(hintText: 'Ex: Avenue de la Liberté, Zone 1'))),
+                        decoration: const InputDecoration(hintText: 'Ex: Avenue de la LibertÃ©, Zone 1'))),
                     const SizedBox(height: 14),
                     Container(
                       height: 140, width: double.infinity,
@@ -181,11 +180,11 @@ class _EditerCommercePageState extends ConsumerState<EditerCommercePage> {
                       child: const Column(mainAxisAlignment: MainAxisAlignment.center, children: [
                         Icon(Icons.map_rounded, size: 40, color: AppTheme.primary),
                         SizedBox(height: 8),
-                        Text('Position GPS enregistrée', style: TextStyle(color: AppTheme.onSurfaceVariant, fontSize: 13)),
+                        Text('Position GPS enregistrÃ©e', style: TextStyle(color: AppTheme.onSurfaceVariant, fontSize: 13)),
                       ]),
                     ),
                     const SizedBox(height: 14),
-                    _buildField(label: 'Téléphone', icon: Icons.call_rounded, child:
+                    _buildField(label: 'TÃ©lÃ©phone', icon: Icons.call_rounded, child:
                       TextFormField(controller: _telephoneCtrl, keyboardType: TextInputType.phone,
                         validator: Validators.telephone,
                         decoration: const InputDecoration(hintText: '+226 70 00 00 00'))),
@@ -294,7 +293,7 @@ class _EditerCommercePageState extends ConsumerState<EditerCommercePage> {
         _navItem(Icons.dashboard_rounded, 'Dashboard', false, () => context.go('/artisan/dashboard')),
         _navItem(Icons.add_circle_outline_rounded, 'Ajouter', true, () => context.push('/artisan/creer')),
         _navItem(Icons.inventory_2_outlined, 'Mes Offres', false, () {}),
-        _navItem(Icons.visibility_outlined, 'Visibilité', false, () {}),
+        _navItem(Icons.visibility_outlined, 'VisibilitÃ©', false, () {}),
       ]),
     );
   }
@@ -317,3 +316,6 @@ class _EditerCommercePageState extends ConsumerState<EditerCommercePage> {
     );
   }
 }
+
+
+

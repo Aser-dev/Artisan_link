@@ -1,9 +1,10 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../presentation/pages/auth/login_page.dart';
 import '../../presentation/pages/auth/reset_password_page.dart';
+import '../../presentation/pages/auth/reset_password_confirm_page.dart';
 import '../../presentation/pages/splash/splash_page.dart';
 import '../../presentation/providers/auth_provider.dart';
 
@@ -16,19 +17,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     navigatorKey: _rootNavigatorKey,
     initialLocation: '/splash',
     redirect: (context, state) {
-    final isLoggedIn = authState.user != null;
+      final isLoggedIn = authState.user != null;
       final isOnSplash = state.matchedLocation == '/splash';
       final isOnLogin = state.matchedLocation == '/login';
+      final isOnReset = state.matchedLocation == '/reset-password';
+      final isOnResetConfirm = state.matchedLocation == '/reset-password-confirm';
 
-      // Si on est sur la page splash, on laisse faire (elle gère son propre délai)
       if (isOnSplash) return null;
-
-      // Si pas connecté, on redirige vers login (sauf si déjà sur login)
-      if (!isLoggedIn && !isOnLogin) {
+      if (!isLoggedIn && !isOnLogin && !isOnReset && !isOnResetConfirm) {
         return '/login';
       }
-
-      // Si connecté et qu'on essaie d'aller sur login, on redirige vers le dashboard
       if (isLoggedIn && isOnLogin) {
         final role = authState.user?.roleActif;
         if (role == 'artisan') return '/artisan/dashboard';
@@ -43,6 +41,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/reset-password',
         builder: (context, state) => const ResetPasswordPage(),
+      ),
+      GoRoute(
+        path: '/reset-password-confirm',
+        builder: (context, state) => const ResetPasswordConfirmPage(),
       ),
       GoRoute(
         path: '/citoyen/accueil',

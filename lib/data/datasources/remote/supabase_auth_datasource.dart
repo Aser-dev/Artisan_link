@@ -19,7 +19,10 @@ class SupabaseAuthDatasource {
   }
 
   Future<void> resetPassword({required String email}) async {
-    await _client.auth.resetPasswordForEmail(email);
+    await _client.auth.resetPasswordForEmail(
+      email,
+      redirectTo: 'artisanbf://reset-password',
+    );
   }
 
   Future<void> logout() async {

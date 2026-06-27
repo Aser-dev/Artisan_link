@@ -7,6 +7,7 @@ import '../../providers/avis_provider.dart';
 import '../../widgets/rating_stars.dart';
 import '../../../core/theme/app_theme.dart';
 import 'donner_avis_page.dart';
+import '../../../domain/entities/commerce_entity.dart';
 
 class DetailCommercePage extends ConsumerStatefulWidget {
   final String commerceId;
@@ -64,7 +65,7 @@ class _DetailCommercePageState extends ConsumerState<DetailCommercePage> {
               flexibleSpace: FlexibleSpaceBar(
                 background: commerce.photos.isNotEmpty
                     ? Image.network(commerce.photos.first, fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => _bannerPlaceholder(commerce.categorie))
+                        errorBuilder: (_, _, _) => _bannerPlaceholder(commerce.categorie))
                     : _bannerPlaceholder(commerce.categorie),
               ),
             ),
@@ -167,11 +168,11 @@ class _DetailCommercePageState extends ConsumerState<DetailCommercePage> {
                         child: ListView.separated(
                           scrollDirection: Axis.horizontal,
                           itemCount: commerce.photos.length,
-                          separatorBuilder: (_, __) => const SizedBox(width: 8),
+                          separatorBuilder: (_) => const SizedBox(width: 8),
                           itemBuilder: (_, i) => ClipRRect(
                             borderRadius: BorderRadius.circular(10),
                             child: Image.network(commerce.photos[i], width: 100, height: 100, fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => Container(width: 100, height: 100, color: AppTheme.surfaceContainerHighest)),
+                              errorBuilder: (_, _, _) => Container(width: 100, height: 100, color: AppTheme.surfaceContainerHighest)),
                           ),
                         ),
                       ),
@@ -198,7 +199,7 @@ class _DetailCommercePageState extends ConsumerState<DetailCommercePage> {
 
                     avisAsync.when(
                       loading: () => const Center(child: Padding(padding: EdgeInsets.all(16), child: CircularProgressIndicator(color: AppTheme.primary))),
-                      error: (_, __) => const Text('Impossible de charger les avis.'),
+                      error: (_) => const Text('Impossible de charger les avis.'),
                       data: (avis) => avis.isEmpty
                           ? Container(
                               padding: const EdgeInsets.all(20),
@@ -286,7 +287,7 @@ class _DetailCommercePageState extends ConsumerState<DetailCommercePage> {
     if (await canLaunchUrl(uri)) await launchUrl(uri);
   }
 
-  void _partagerWhatsApp(commerce) async {
+  void _partagerWhatsApp(CommerceEntity commerce) async {
     final msg = '🛠️ Artisan Core\n\nNom : ${commerce.nom}\nCatégorie : ${commerce.categorie}\nTél : ${commerce.telephone ?? '-'}\nAdresse : ${commerce.descriptionAdresse ?? '-'}';
     final uri = Uri.parse('https://wa.me/?text=${Uri.encodeComponent(msg)}');
     if (await canLaunchUrl(uri)) await launchUrl(uri);
@@ -330,3 +331,7 @@ class _InfoRow extends StatelessWidget {
     Expanded(child: Text(text, style: const TextStyle(color: AppTheme.onSurfaceVariant, fontSize: 14, height: 1.4))),
   ]);
 }
+
+
+
+

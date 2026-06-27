@@ -1,4 +1,4 @@
-// lib/presentation/widgets/commerce_card.dart
+﻿// lib/presentation/widgets/commerce_card.dart
 import 'package:flutter/material.dart';
 import '../../domain/entities/commerce_entity.dart';
 import '../../core/theme/app_theme.dart';
@@ -24,7 +24,7 @@ class CommerceCard extends StatelessWidget {
             borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
             child: commerce.photos.isNotEmpty
                 ? Image.network(commerce.photos.first, height: 160, width: double.infinity, fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => _iconBanner())
+                    errorBuilder: (_, _, _) => _iconBanner())
                 : _iconBanner(),
           ),
           Padding(
@@ -75,7 +75,7 @@ class CommerceCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(999),
                       ),
                       child: Text(
-                        commerce.estPublie ? 'Publié' : 'Brouillon',
+                        commerce.estPublie ? 'PubliÃ©' : 'Brouillon',
                         style: TextStyle(
                           fontSize: 11, fontWeight: FontWeight.w600,
                           color: commerce.estPublie ? AppTheme.primaryContainer : AppTheme.onSurfaceVariant,
@@ -102,12 +102,13 @@ class CommerceCard extends StatelessWidget {
 
   IconData _getIcon(String cat) {
     switch (cat.toLowerCase()) {
-      case 'mécanicien': return Icons.build_rounded;
+      case 'mÃ©canicien': return Icons.build_rounded;
       case 'couturier': return Icons.checkroom_rounded;
       case 'coiffeur': return Icons.content_cut_rounded;
       case 'soudeur': return Icons.hardware_rounded;
-      case 'électricien': return Icons.electrical_services_rounded;
+      case 'Ã©lectricien': return Icons.electrical_services_rounded;
       default: return Icons.storefront_rounded;
     }
   }
 }
+

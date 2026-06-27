@@ -7,7 +7,7 @@ class SupabaseClientWrapper {
   late final SupabaseClient client;
 
   Future<void> init({required String url, required String publishableKey}) async {
-    await Supabase.initialize(url: url, anonKey: publishableKey);
+    await Supabase.initialize(url: url, publishableKey: publishableKey);
     client = Supabase.instance.client;
   }
 

@@ -27,7 +27,7 @@ class _ArtisanBfAppState extends ConsumerState<ArtisanBfApp> {
   void initState() {
     super.initState();
     ref.read(authProvider.notifier).setPasswordRecoveryCallback(() {
-      appRouter.go('/new-password');
+      appRouter.go('/reset-password-confirm');
     });
   }
 

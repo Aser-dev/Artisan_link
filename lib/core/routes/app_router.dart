@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../../presentation/pages/splash/splash_page.dart';
 import '../../presentation/pages/auth/login_page.dart';
 import '../../presentation/pages/auth/reset_password_page.dart';
+import '../../presentation/pages/auth/reset_password_confirm_page.dart';
 import '../../presentation/pages/onboarding/onboarding_page.dart';
 import '../../presentation/pages/citoyen/accueil_citoyen_page.dart';
 import '../../presentation/pages/citoyen/detail_commerce_page.dart';
@@ -18,6 +19,7 @@ final appRouter = GoRouter(
     GoRoute(path: '/', builder: (context, state) => const SplashPage()),
     GoRoute(path: '/login', builder: (context, state) => const LoginPage()),
     GoRoute(path: '/reset-password', builder: (context, state) => const ResetPasswordPage()),
+    GoRoute(path: '/reset-password-confirm', builder: (context, state) => const ResetPasswordConfirmPage()),
     GoRoute(path: '/onboarding', builder: (context, state) => const OnboardingPage()),
     GoRoute(path: '/citoyen', builder: (context, state) => const AccueilCitoyenPage()),
     GoRoute(

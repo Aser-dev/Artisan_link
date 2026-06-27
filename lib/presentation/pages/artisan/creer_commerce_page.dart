@@ -118,8 +118,7 @@ class _CreerCommercePageState extends ConsumerState<CreerCommercePage> {
                     decoration: const InputDecoration(hintText: 'Ex: Ferronnerie d\'Art de Ouaga'))),
                 const SizedBox(height: 16),
                 _buildField(label: 'Catégorie', icon: Icons.category_rounded, child:
-                  DropdownButtonFormField<String>(
-                    value: _categorie,
+                  DropdownButtonFormField<String>(initialValue: _categorie,
                     hint: const Text('Sélectionnez un métier'),
                     items: AppConstants.categories.map((cat) => DropdownMenuItem(value: cat, child: Text(cat))).toList(),
                     onChanged: (val) => setState(() => _categorie = val),
@@ -228,3 +227,5 @@ class _CreerCommercePageState extends ConsumerState<CreerCommercePage> {
     );
   }
 }
+
+
