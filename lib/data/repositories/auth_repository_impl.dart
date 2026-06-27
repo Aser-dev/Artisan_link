@@ -1,6 +1,4 @@
 // lib/data/repositories/auth_repository_impl.dart
-import 'dart:math';
-
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/i_auth_repository.dart';
 import '../datasources/remote/supabase_auth_datasource.dart';
@@ -24,19 +22,18 @@ class AuthRepositoryImpl implements IAuthRepository {
   }
 
   @override
-  Future<UserEntity> register({
+  Future<void> register({
     required String nom,
     required String email,
     required String telephone,
     required String password,
   }) async {
-    final dto = await _remote.register(
+    await _remote.register(
       nom: nom,
       email: email,
       telephone: telephone,
       password: password,
     );
-    return dto.toEntity();
   }
 
   @override

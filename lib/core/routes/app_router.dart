@@ -10,6 +10,8 @@ import '../../presentation/pages/citoyen/donner_avis_page.dart';
 import '../../presentation/pages/artisan/dashboard_artisan_page.dart';
 import '../../presentation/pages/artisan/creer_commerce_page.dart';
 import '../../presentation/pages/artisan/gerer_publication_page.dart';
+import '../../presentation/pages/artisan/editer_commerce_page.dart';
+import '../../presentation/pages/artisan/editer_commerce_page.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/',
@@ -55,6 +57,20 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/artisan/creer',
       builder: (context, state) => const CreerCommercePage(),
+    ),
+    GoRoute(
+      path: '/artisan/editer/:id',
+      builder: (context, state) {
+        final id = state.pathParameters['id']!;
+        return EditerCommercePage(commerceId: id);
+      },
+    ),
+    GoRoute(
+      path: '/artisan/editer/:id',
+      builder: (context, state) {
+        final id = state.pathParameters['id']!;
+        return EditerCommercePage(commerceId: id);
+      },
     ),
     GoRoute(
       path: '/artisan/publication/:id',

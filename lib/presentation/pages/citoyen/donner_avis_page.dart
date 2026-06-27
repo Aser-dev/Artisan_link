@@ -1,7 +1,9 @@
+// lib/presentation/pages/citoyen/donner_avis_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/avis_provider.dart';
+import '../../../core/theme/app_theme.dart';
 
 class DonnerAvisPage extends ConsumerStatefulWidget {
   final String commerceId;
@@ -16,10 +18,7 @@ class _DonnerAvisPageState extends ConsumerState<DonnerAvisPage> {
   final _formKey = GlobalKey<FormState>();
 
   @override
-  void dispose() {
-    _commentaireCtrl.dispose();
-    super.dispose();
-  }
+  void dispose() { _commentaireCtrl.dispose(); super.dispose(); }
 
   Future<void> _soumettre() async {
     if (!_formKey.currentState!.validate()) return;
@@ -30,101 +29,86 @@ class _DonnerAvisPageState extends ConsumerState<DonnerAvisPage> {
     if (!mounted) return;
     final state = ref.read(avisProvider);
     if (state.succes) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('✅ Avis publié ! Note IA : ${state.dernierAvis?.noteIa ?? '?'} ⭐'),
-          backgroundColor: Colors.green[700],
-        ),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Avis publié ! Note IA : ${state.dernierAvis?.noteIa ?? '?'}/5 ⭐'),
+        backgroundColor: AppTheme.primaryContainer,
+      ));
       context.pop();
     } else if (state.erreur != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('❌ ${state.erreur}'), backgroundColor: Colors.red[700]),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(state.erreur!), backgroundColor: AppTheme.error));
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final avisState = ref.watch(avisProvider);
-
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: AppTheme.neutralSand,
       appBar: AppBar(
-        title: const Text('Donner un avis', style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.white,
+        backgroundColor: AppTheme.surfaceContainerLow,
         elevation: 0,
-        foregroundColor: const Color(0xFF1E1E1E),
+        foregroundColor: AppTheme.onSurface,
+        leading: IconButton(icon: const Icon(Icons.arrow_back_rounded, color: AppTheme.primary), onPressed: () => context.pop()),
+        title: const Text('Donner un avis', style: TextStyle(fontFamily: 'Hanken Grotesk', fontWeight: FontWeight.w700, color: AppTheme.primary)),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Illustration header
+              // Header illustré
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppTheme.surfaceContainerLowest,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: const Color(0xFFE9ECEF)),
+                  border: Border.all(color: AppTheme.outlineVariant.withOpacity(0.3)),
+                  boxShadow: [BoxShadow(color: AppTheme.primary.withOpacity(0.04), blurRadius: 12)],
                 ),
-                child: Column(
-                  children: [
-                    Container(
-                      width: 64,
-                      height: 64,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE8F5E9),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: const Icon(Icons.rate_review_rounded, size: 32, color: Color(0xFF2E4A0B)),
+                child: Column(children: [
+                  Container(
+                    width: 64, height: 64,
+                    decoration: BoxDecoration(
+                      color: AppTheme.primaryContainer.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(20),
                     ),
-                    const SizedBox(height: 12),
-                    const Text(
-                      'Votre avis compte !',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1E1E1E)),
-                    ),
-                    const SizedBox(height: 6),
-                    const Text(
-                      'Partagez votre expérience pour aider la communauté.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Color(0xFF6C757D), fontSize: 14),
-                    ),
-                  ],
-                ),
+                    child: const Icon(Icons.rate_review_rounded, size: 32, color: AppTheme.primaryContainer),
+                  ),
+                  const SizedBox(height: 12),
+                  const Text('Votre avis compte !', style: TextStyle(fontFamily: 'Hanken Grotesk', fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.onSurface)),
+                  const SizedBox(height: 6),
+                  const Text('Partagez votre expérience pour aider la communauté.', textAlign: TextAlign.center, style: TextStyle(color: AppTheme.onSurfaceVariant, fontSize: 14, height: 1.4)),
+                ]),
               ),
               const SizedBox(height: 20),
 
-              // Champ commentaire
+              // Commentaire
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppTheme.surfaceContainerLowest,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFFE9ECEF)),
+                  border: Border.all(color: AppTheme.outlineVariant.withOpacity(0.3)),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Votre commentaire', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                    const SizedBox(height: 12),
-                    TextFormField(
-                      controller: _commentaireCtrl,
-                      maxLines: 5,
-                      decoration: InputDecoration(
-                        hintText: 'Décrivez votre expérience avec cet artisan...',
-                        fillColor: const Color(0xFFF8F9FA),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                        filled: true,
-                      ),
-                      validator: (v) => v!.trim().isEmpty ? 'Veuillez saisir un commentaire' : null,
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  const Text('Votre commentaire', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: AppTheme.onSurface)),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: _commentaireCtrl,
+                    maxLines: 5,
+                    decoration: InputDecoration(
+                      hintText: 'Décrivez votre expérience avec cet artisan...',
+                      fillColor: AppTheme.surfaceContainerLow,
+                      filled: true,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
                     ),
-                  ],
-                ),
+                    validator: (v) => v!.trim().isEmpty ? 'Veuillez saisir un commentaire' : null,
+                  ),
+                ]),
               ),
               const SizedBox(height: 16),
 
@@ -132,36 +116,29 @@ class _DonnerAvisPageState extends ConsumerState<DonnerAvisPage> {
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: Colors.amber[50],
+                  color: AppTheme.terracottaClay.withOpacity(0.08),
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: Colors.amber[200]!),
+                  border: Border.all(color: AppTheme.terracottaClay.withOpacity(0.25)),
                 ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.auto_awesome_rounded, color: Colors.amber, size: 20),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        "Notre IA analysera automatiquement votre commentaire pour générer une note.",
-                        style: TextStyle(fontSize: 13, color: Colors.amber[900]),
-                      ),
-                    ),
-                  ],
-                ),
+                child: Row(children: [
+                  const Icon(Icons.auto_awesome_rounded, color: AppTheme.terracottaClay, size: 20),
+                  const SizedBox(width: 10),
+                  Expanded(child: Text(
+                    "Notre IA analysera automatiquement votre commentaire pour générer une note.",
+                    style: TextStyle(fontSize: 13, color: AppTheme.terracottaClay.withOpacity(0.9), height: 1.4),
+                  )),
+                ]),
               ),
               const SizedBox(height: 28),
 
               SizedBox(
-                width: double.infinity,
-                height: 56,
+                width: double.infinity, height: 56,
                 child: ElevatedButton(
                   onPressed: avisState.isLoading ? null : _soumettre,
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  ),
+                  style: ElevatedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
                   child: avisState.isLoading
-                      ? const SizedBox(height: 22, width: 22, child: CircularProgressIndicator(color: Color(0xFF1E1E1E), strokeWidth: 2))
-                      : const Text('Publier mon avis', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      ? const SizedBox(height: 22, width: 22, child: CircularProgressIndicator(color: AppTheme.onPrimary, strokeWidth: 2))
+                      : const Text('Publier mon avis', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
                 ),
               ),
             ],

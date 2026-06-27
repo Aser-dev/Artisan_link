@@ -1,5 +1,6 @@
 // lib/core/theme/app_theme.dart
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // Primary - Trust Green
@@ -45,7 +46,7 @@ class AppTheme {
   static ThemeData light() {
     return ThemeData(
       useMaterial3: true,
-      fontFamily: 'Be Vietnam Pro',
+      textTheme: GoogleFonts.beVietnamProTextTheme(),
       scaffoldBackgroundColor: neutralSand,
       colorScheme: const ColorScheme.light(
         primary: primary,
@@ -64,13 +65,12 @@ class AppTheme {
         errorContainer: errorContainer,
         background: neutralSand,
       ),
-      appBarTheme: const AppBarTheme(
+      appBarTheme: AppBarTheme(
         backgroundColor: surfaceContainerLow,
         elevation: 0,
         foregroundColor: onSurface,
         centerTitle: false,
-        titleTextStyle: TextStyle(
-          fontFamily: 'Hanken Grotesk',
+        titleTextStyle: GoogleFonts.hankenGrotesk(
           fontSize: 20,
           fontWeight: FontWeight.w700,
           color: primary,
@@ -122,7 +122,7 @@ class AppTheme {
         labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: surfaceContainerLowest,
         elevation: 0,
         shape: RoundedRectangleBorder(

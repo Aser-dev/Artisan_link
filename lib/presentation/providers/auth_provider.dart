@@ -1,5 +1,6 @@
 // lib/presentation/providers/auth_provider.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../core/di/injection_container.dart';
 
@@ -7,19 +8,22 @@ class AuthState {
   final UserEntity? user;
   final bool isLoading;
   final String? erreur;
+  final bool emailConfirmationSent;
 
-  const AuthState({this.user, this.isLoading = false, this.erreur});
+  const AuthState({this.user, this.isLoading = false, this.erreur, this.emailConfirmationSent = false});
 
   AuthState copyWith({
     UserEntity? user,
     bool? isLoading,
     String? erreur,
+    bool? emailConfirmationSent,
     bool clearErreur = false,
   }) {
     return AuthState(
       user: user ?? this.user,
       isLoading: isLoading ?? this.isLoading,
       erreur: clearErreur ? null : erreur ?? this.erreur,
+      emailConfirmationSent: emailConfirmationSent ?? this.emailConfirmationSent,
     );
   }
 }
@@ -28,6 +32,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
   final Ref _ref;
   AuthNotifier(this._ref) : super(const AuthState()) {
     _init();
+    // Écoute les changements de session (confirmation email, etc.)
+    Supabase.instance.client.auth.onAuthStateChange.listen((data) {
+      if (data.event == AuthChangeEvent.signedIn && state.user == null) {
+        _init();
+      }
+    });
   }
 
   Future<void> _init() async {
@@ -60,7 +70,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }) async {
     state = state.copyWith(isLoading: true, clearErreur: true);
     try {
-      final user = await _ref
+      await _ref
           .read(registerUsecaseProvider)
           .call(
             nom: nom,
@@ -68,7 +78,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
             telephone: telephone,
             password: password,
           );
-      state = state.copyWith(user: user, isLoading: false);
+      state = state.copyWith(isLoading: false, emailConfirmationSent: true);
     } catch (e) {
       state = state.copyWith(isLoading: false, erreur: e.toString());
     }
@@ -111,6 +121,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   return AuthNotifier(ref);
 });
+
+// Alias pour compatibilité
+final authNotifierProvider = authProvider;
 
 final currentUserProvider = Provider<UserEntity?>((ref) {
   return ref.watch(authProvider).user;

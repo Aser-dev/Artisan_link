@@ -15,7 +15,7 @@ class SupabaseAuthDatasource {
     return _getProfile(response.user!.id, response.user!.email!);
   }
 
-  Future<UserDto> register({
+  Future<void> register({
     required String nom,
     required String email,
     required String telephone,
@@ -24,24 +24,10 @@ class SupabaseAuthDatasource {
     final response = await _client.auth.signUp(
       email: email,
       password: password,
+      data: {'nom': nom, 'telephone': telephone},
     );
     if (response.user == null) throw Exception('Inscription échouée');
-    await _client.from('profile').insert({
-      'id': response.user!.id,
-      'nom': nom,
-      'email': email,
-      'telephone': telephone,
-      'role_actif': 'citoyen',
-      'onboarding_fait': false,
-    });
-    return UserDto(
-      id: response.user!.id,
-      nom: nom,
-      email: email,
-      telephone: telephone,
-      roleActif: 'citoyen',
-      onboardingFait: false,
-    );
+    // Le profil sera créé au premier login après confirmation email
   }
 
   Future<void> resetPassword({required String email}) async {
@@ -66,6 +52,28 @@ class SupabaseAuthDatasource {
   }
 
   Future<UserDto> _getProfile(String userId, String email) async {
+    // Vérifie si le profil existe, sinon le crée avec les metadata
+    final existing = await _client
+        .from('profile')
+        .select()
+        .eq('id', userId)
+        .maybeSingle();
+
+    if (existing != null) {
+      return UserDto.fromJson({...existing, 'email': email});
+    }
+
+    // Premier login après confirmation email : créer le profil
+    final user = _client.auth.currentUser;
+    final meta = user?.userMetadata ?? {};
+    await _client.from('profile').insert({
+      'id': userId,
+      'nom': meta['nom'] ?? '',
+      'email': email,
+      'telephone': meta['telephone'] ?? '',
+      'role_actif': 'citoyen',
+      'onboarding_fait': false,
+    });
     final data = await _client
         .from('profile')
         .select()

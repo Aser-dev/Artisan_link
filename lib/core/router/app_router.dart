@@ -16,7 +16,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     navigatorKey: _rootNavigatorKey,
     initialLocation: '/splash',
     redirect: (context, state) {
-      final isLoggedIn = authState.isAuthenticated;
+    final isLoggedIn = authState.user != null;
       final isOnSplash = state.matchedLocation == '/splash';
       final isOnLogin = state.matchedLocation == '/login';
 
@@ -30,7 +30,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 
       // Si connecté et qu'on essaie d'aller sur login, on redirige vers le dashboard
       if (isLoggedIn && isOnLogin) {
-        final role = authState.user?.role;
+        final role = authState.user?.roleActif;
         if (role == 'artisan') return '/artisan/dashboard';
         return '/citoyen/accueil';
       }
