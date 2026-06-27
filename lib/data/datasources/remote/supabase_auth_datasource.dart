@@ -7,31 +7,22 @@ class SupabaseAuthDatasource {
   SupabaseAuthDatasource(this._client);
 
   Future<UserDto> login({required String email, required String password}) async {
-    final response = await _client.auth.signInWithPassword(
-      email: email,
-      password: password,
-    );
+    final response = await _client.auth.signInWithPassword(email: email, password: password);
     if (response.user == null) throw Exception('Connexion échouée');
-    return _getProfile(response.user!.id, response.user!.email!);
+    return UserDto.fromSupabase(response.user!);
   }
 
-  Future<void> register({
-    required String nom,
-    required String email,
-    required String telephone,
-    required String password,
-  }) async {
-    final response = await _client.auth.signUp(
-      email: email,
-      password: password,
-      data: {'nom': nom, 'telephone': telephone},
-    );
+  Future<UserDto> register({required String email, required String password}) async {
+    final response = await _client.auth.signUp(email: email, password: password);
     if (response.user == null) throw Exception('Inscription échouée');
-    // Le profil sera créé au premier login après confirmation email
+    return UserDto.fromSupabase(response.user!);
   }
 
   Future<void> resetPassword({required String email}) async {
-    await _client.auth.resetPasswordForEmail(email);
+    await _client.auth.resetPasswordForEmail(
+      email,
+      redirectTo: 'artisanbf://reset-password',
+    );
   }
 
   Future<void> logout() async {
@@ -41,44 +32,8 @@ class SupabaseAuthDatasource {
   Future<UserDto?> getCurrentUser() async {
     final user = _client.auth.currentUser;
     if (user == null) return null;
-    return _getProfile(user.id, user.email!);
+    return UserDto.fromSupabase(user);
   }
 
-  Future<void> setRole({required String userId, required String role}) async {
-    await _client.from('profile').update({
-      'role_actif': role,
-      'onboarding_fait': true,
-    }).eq('id', userId);
-  }
-
-  Future<UserDto> _getProfile(String userId, String email) async {
-    // Vérifie si le profil existe, sinon le crée avec les metadata
-    final existing = await _client
-        .from('profile')
-        .select()
-        .eq('id', userId)
-        .maybeSingle();
-
-    if (existing != null) {
-      return UserDto.fromJson({...existing, 'email': email});
-    }
-
-    // Premier login après confirmation email : créer le profil
-    final user = _client.auth.currentUser;
-    final meta = user?.userMetadata ?? {};
-    await _client.from('profile').insert({
-      'id': userId,
-      'nom': meta['nom'] ?? '',
-      'email': email,
-      'telephone': meta['telephone'] ?? '',
-      'role_actif': 'citoyen',
-      'onboarding_fait': false,
-    });
-    final data = await _client
-        .from('profile')
-        .select()
-        .eq('id', userId)
-        .single();
-    return UserDto.fromJson({...data, 'email': email});
-  }
+  Future<void> setRole({required String userId, required String role}) async {}
 }

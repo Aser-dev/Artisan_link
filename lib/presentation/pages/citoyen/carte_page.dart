@@ -1,4 +1,4 @@
-// lib/presentation/pages/citoyen/carte_page.dart
+﻿// lib/presentation/pages/citoyen/carte_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -121,7 +121,7 @@ class _CartePageState extends ConsumerState<CartePage> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(30),
               boxShadow: [
-                BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 6),
+                BoxShadow(color: Colors.black.withValues(alpha: 0.3), blurRadius: 6),
               ],
             ),
             child: const Icon(

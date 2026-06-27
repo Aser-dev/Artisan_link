@@ -3,25 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  // Primary - Trust Green
   static const Color primary = Color(0xFF00450D);
   static const Color primaryContainer = Color(0xFF1B5E20);
   static const Color onPrimary = Color(0xFFFFFFFF);
   static const Color onPrimaryContainer = Color(0xFF90D689);
   static const Color inversePrimary = Color(0xFF91D78A);
-
-  // Secondary - Terracotta
   static const Color secondary = Color(0xFFB22C01);
   static const Color secondaryContainer = Color(0xFFFF6338);
   static const Color onSecondary = Color(0xFFFFFFFF);
   static const Color terracottaClay = Color(0xFFD87D4A);
-
-  // Accent
   static const Color savannahGold = Color(0xFFFBC02D);
-  static const Color deepTeal = Color(0xFF004D40);
-
-  // Surface
-  static const Color background = Color(0xFFF7FBF1);
   static const Color neutralSand = Color(0xFFF5F5F1);
   static const Color surface = Color(0xFFF7FBF1);
   static const Color surfaceContainerLowest = Color(0xFFFFFFFF);
@@ -30,16 +21,10 @@ class AppTheme {
   static const Color surfaceContainerHigh = Color(0xFFE6E9E0);
   static const Color surfaceContainerHighest = Color(0xFFE0E4DB);
   static const Color surfaceVariant = Color(0xFFE0E4DB);
-
-  // On Surface
   static const Color onSurface = Color(0xFF191D17);
   static const Color onSurfaceVariant = Color(0xFF41493E);
-
-  // Outline
   static const Color outline = Color(0xFF717A6D);
   static const Color outlineVariant = Color(0xFFC0C9BB);
-
-  // Error
   static const Color error = Color(0xFFBA1A1A);
   static const Color errorContainer = Color(0xFFFFDAD6);
 
@@ -63,7 +48,6 @@ class AppTheme {
         outlineVariant: outlineVariant,
         error: error,
         errorContainer: errorContainer,
-        background: neutralSand,
       ),
       appBarTheme: AppBarTheme(
         backgroundColor: surfaceContainerLow,
@@ -105,7 +89,6 @@ class AppTheme {
           elevation: 2,
           minimumSize: const Size(double.infinity, 52),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16, fontFamily: 'Be Vietnam Pro'),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
@@ -127,7 +110,7 @@ class AppTheme {
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: BorderSide(color: outlineVariant.withOpacity(0.3)),
+          side: BorderSide(color: outlineVariant.withValues(alpha: 0.3)),
         ),
       ),
     );

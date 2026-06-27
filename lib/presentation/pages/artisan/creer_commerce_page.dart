@@ -1,9 +1,8 @@
-// lib/presentation/pages/artisan/creer_commerce_page.dart
+﻿// lib/presentation/pages/artisan/creer_commerce_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:geolocator/geolocator.dart';
-import '../../providers/commerce_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../../core/di/injection_container.dart';
 import '../../../domain/entities/commerce_entity.dart';
@@ -72,6 +71,7 @@ class _CreerCommercePageState extends ConsumerState<CreerCommercePage> {
         photos: [], estPublie: false, noteMoyenne: 0, nombreAvis: 0, createdAt: DateTime.now(),
       );
       await ref.read(createCommerceUsecaseProvider).call(commerce: commerce);
+      if (!mounted) return;
       setState(() => _isLoading = false);
       _snack('Commerce créé avec succès !');
       context.pop();
@@ -118,8 +118,7 @@ class _CreerCommercePageState extends ConsumerState<CreerCommercePage> {
                     decoration: const InputDecoration(hintText: 'Ex: Ferronnerie d\'Art de Ouaga'))),
                 const SizedBox(height: 16),
                 _buildField(label: 'Catégorie', icon: Icons.category_rounded, child:
-                  DropdownButtonFormField<String>(
-                    value: _categorie,
+                  DropdownButtonFormField<String>(initialValue: _categorie,
                     hint: const Text('Sélectionnez un métier'),
                     items: AppConstants.categories.map((cat) => DropdownMenuItem(value: cat, child: Text(cat))).toList(),
                     onChanged: (val) => setState(() => _categorie = val),
@@ -153,7 +152,7 @@ class _CreerCommercePageState extends ConsumerState<CreerCommercePage> {
                 decoration: BoxDecoration(
                   color: _gpsCharge ? AppTheme.surfaceContainerLow : AppTheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: _gpsCharge ? AppTheme.primaryContainer.withOpacity(0.4) : AppTheme.outlineVariant),
+                  border: Border.all(color: _gpsCharge ? AppTheme.primaryContainer.withValues(alpha: 0.4) : AppTheme.outlineVariant),
                 ),
                 child: Row(
                   children: [
@@ -206,8 +205,8 @@ class _CreerCommercePageState extends ConsumerState<CreerCommercePage> {
       decoration: BoxDecoration(
         color: AppTheme.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.outlineVariant.withOpacity(0.3)),
-        boxShadow: [BoxShadow(color: AppTheme.primary.withOpacity(0.04), blurRadius: 12)],
+        border: Border.all(color: AppTheme.outlineVariant.withValues(alpha: 0.3)),
+        boxShadow: [BoxShadow(color: AppTheme.primary.withValues(alpha: 0.04), blurRadius: 12)],
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: children),
     );
@@ -228,3 +227,5 @@ class _CreerCommercePageState extends ConsumerState<CreerCommercePage> {
     );
   }
 }
+
+

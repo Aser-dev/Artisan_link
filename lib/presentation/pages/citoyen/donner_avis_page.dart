@@ -1,4 +1,4 @@
-// lib/presentation/pages/citoyen/donner_avis_page.dart
+﻿// lib/presentation/pages/citoyen/donner_avis_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -66,14 +66,14 @@ class _DonnerAvisPageState extends ConsumerState<DonnerAvisPage> {
                 decoration: BoxDecoration(
                   color: AppTheme.surfaceContainerLowest,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppTheme.outlineVariant.withOpacity(0.3)),
-                  boxShadow: [BoxShadow(color: AppTheme.primary.withOpacity(0.04), blurRadius: 12)],
+                  border: Border.all(color: AppTheme.outlineVariant.withValues(alpha: 0.3)),
+                  boxShadow: [BoxShadow(color: AppTheme.primary.withValues(alpha: 0.04), blurRadius: 12)],
                 ),
                 child: Column(children: [
                   Container(
                     width: 64, height: 64,
                     decoration: BoxDecoration(
-                      color: AppTheme.primaryContainer.withOpacity(0.15),
+                      color: AppTheme.primaryContainer.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: const Icon(Icons.rate_review_rounded, size: 32, color: AppTheme.primaryContainer),
@@ -92,7 +92,7 @@ class _DonnerAvisPageState extends ConsumerState<DonnerAvisPage> {
                 decoration: BoxDecoration(
                   color: AppTheme.surfaceContainerLowest,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppTheme.outlineVariant.withOpacity(0.3)),
+                  border: Border.all(color: AppTheme.outlineVariant.withValues(alpha: 0.3)),
                 ),
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   const Text('Votre commentaire', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: AppTheme.onSurface)),
@@ -116,16 +116,16 @@ class _DonnerAvisPageState extends ConsumerState<DonnerAvisPage> {
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: AppTheme.terracottaClay.withOpacity(0.08),
+                  color: AppTheme.terracottaClay.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: AppTheme.terracottaClay.withOpacity(0.25)),
+                  border: Border.all(color: AppTheme.terracottaClay.withValues(alpha: 0.25)),
                 ),
                 child: Row(children: [
                   const Icon(Icons.auto_awesome_rounded, color: AppTheme.terracottaClay, size: 20),
                   const SizedBox(width: 10),
                   Expanded(child: Text(
                     "Notre IA analysera automatiquement votre commentaire pour générer une note.",
-                    style: TextStyle(fontSize: 13, color: AppTheme.terracottaClay.withOpacity(0.9), height: 1.4),
+                    style: TextStyle(fontSize: 13, color: AppTheme.terracottaClay.withValues(alpha: 0.9), height: 1.4),
                   )),
                 ]),
               ),

@@ -29,15 +29,23 @@ class _SplashPageState extends ConsumerState<SplashPage> with SingleTickerProvid
   }
 
   @override
-  void dispose() { _ctrl.dispose(); super.dispose(); }
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
 
   Future<void> _rediriger() async {
     if (!mounted) return;
     final s = ref.read(authProvider);
-    if (s.user == null) context.go('/login');
-    else if (!s.user!.onboardingFait) context.go('/onboarding');
-    else if (s.user!.estArtisan) context.go('/artisan/dashboard');
-    else context.go('/citoyen');
+    if (s.user == null) {
+      context.go('/login');
+    } else if (!s.user!.onboardingFait) {
+      context.go('/onboarding');
+    } else if (s.user!.estArtisan) {
+      context.go('/artisan/dashboard');
+    } else {
+      context.go('/citoyen');
+    }
   }
 
   @override
@@ -53,21 +61,30 @@ class _SplashPageState extends ConsumerState<SplashPage> with SingleTickerProvid
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  width: 100,
-                  height: 100,
+                  width: 100, height: 100,
                   decoration: BoxDecoration(
                     color: AppTheme.inversePrimary,
                     borderRadius: BorderRadius.circular(28),
-                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 24, offset: const Offset(0, 8))],
+                    boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 24, offset: const Offset(0, 8))],
                   ),
                   child: const Icon(Icons.handyman_rounded, size: 52, color: AppTheme.primaryContainer),
                 ),
                 const SizedBox(height: 24),
-                const Text('Artisan Core', style: TextStyle(fontFamily: 'Hanken Grotesk', color: AppTheme.onPrimary, fontSize: 36, fontWeight: FontWeight.w800, letterSpacing: -0.5)),
+                const Text('Artisan Core',
+                  style: TextStyle(fontFamily: 'Hanken Grotesk', color: AppTheme.onPrimary, fontSize: 36, fontWeight: FontWeight.w800, letterSpacing: -0.5)),
                 const SizedBox(height: 8),
-                Text('Les artisans de chez nous, près de chez vous', style: TextStyle(color: AppTheme.onPrimary.withOpacity(0.7), fontSize: 14), textAlign: TextAlign.center),
+                Text('Les artisans de chez nous, près de chez vous',
+                  style: TextStyle(color: AppTheme.onPrimary.withValues(alpha: 0.7), fontSize: 14),
+                  textAlign: TextAlign.center),
                 const SizedBox(height: 64),
-                SizedBox(width: 28, height: 28, child: CircularProgressIndicator(color: AppTheme.inversePrimary, strokeWidth: 2.5, backgroundColor: Colors.white.withOpacity(0.2))),
+                SizedBox(
+                  width: 28, height: 28,
+                  child: CircularProgressIndicator(
+                    color: AppTheme.inversePrimary,
+                    strokeWidth: 2.5,
+                    backgroundColor: Colors.white.withValues(alpha: 0.2),
+                  ),
+                ),
               ],
             ),
           ),

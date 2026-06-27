@@ -1,4 +1,4 @@
-import 'dart:io';
+﻿import 'dart:io';
 
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
@@ -16,12 +16,12 @@ class PhotoService {
   }) async {
     final picker = ImagePicker();
 
-    final List<XFile>? picked = await picker.pickMultiImage(
+    final List<XFile> picked = await picker.pickMultiImage(
       limit: max,
       imageQuality: 100,
     );
 
-    if (picked == null || picked.isEmpty) return <String>[];
+    if (picked.isEmpty) return <String>[];
 
     final client = Supabase.instance.client;
     final bucket = client.storage.from('photos');
@@ -34,7 +34,7 @@ class PhotoService {
       final compressedDir = await Directory.systemTemp.createTemp();
       final compressedPath = '${compressedDir.path}/${Uuid().v4()}.jpg';
 
-      final compressedFilePath = await FlutterImageCompress.compressAndGetFile(
+      final XFile? compressedFilePath = await FlutterImageCompress.compressAndGetFile(
         path,
         compressedPath,
         quality: quality,
@@ -42,9 +42,7 @@ class PhotoService {
 
       if (compressedFilePath == null) continue;
 
-      final fileBytes = await File(
-        (compressedFilePath as String),
-      ).readAsBytes();
+      final fileBytes = await File(compressedFilePath.path).readAsBytes();
 
       final fileName = 'commerces/${Uuid().v4()}.jpg';
 
@@ -63,3 +61,4 @@ class PhotoService {
     return urls;
   }
 }
+

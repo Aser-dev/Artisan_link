@@ -1,4 +1,4 @@
-// lib/presentation/pages/artisan/gerer_publication_page.dart
+﻿// lib/presentation/pages/artisan/gerer_publication_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -9,12 +9,7 @@ import '../../../core/theme/app_theme.dart';
 class GererPublicationPage extends ConsumerStatefulWidget {
   final String commerceId;
   final bool estPublieActuel;
-
-  const GererPublicationPage({
-    super.key,
-    required this.commerceId,
-    required this.estPublieActuel,
-  });
+  const GererPublicationPage({super.key, required this.commerceId, required this.estPublieActuel});
 
   @override
   ConsumerState<GererPublicationPage> createState() => _GererPublicationPageState();
@@ -35,13 +30,15 @@ class _GererPublicationPageState extends ConsumerState<GererPublicationPage> {
     try {
       await ref.read(togglePublicationUsecaseProvider).call(
         commerceId: widget.commerceId, publier: _estPublie);
+      if (!mounted) return;
       setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(_estPublie ? 'Commerce publié !' : 'Commerce retiré de l\'annuaire.'),
+        content: Text(_estPublie ? 'Commerce publiÃ© !' : 'Commerce retirÃ© de l\'annuaire.'),
         backgroundColor: _estPublie ? AppTheme.primaryContainer : AppTheme.terracottaClay,
       ));
       context.pop();
     } catch (e) {
+      if (!mounted) return;
       setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Erreur : ${e.toString()}'),
@@ -70,82 +67,69 @@ class _GererPublicationPageState extends ConsumerState<GererPublicationPage> {
           const SizedBox(width: 10),
           const Text('Artisan Core', style: TextStyle(fontFamily: 'Hanken Grotesk', fontWeight: FontWeight.w700, color: AppTheme.primary, fontSize: 18)),
         ]),
-        actions: [
-          IconButton(icon: const Icon(Icons.notifications_outlined, color: AppTheme.primary), onPressed: () {}),
-        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(16, 20, 16, 100),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Gérer la publication', style: TextStyle(fontFamily: 'Hanken Grotesk', fontSize: 26, fontWeight: FontWeight.w700, color: AppTheme.primary)),
+            const Text('GÃ©rer la publication', style: TextStyle(fontFamily: 'Hanken Grotesk', fontSize: 26, fontWeight: FontWeight.w700, color: AppTheme.primary)),
             const SizedBox(height: 6),
-            const Text(
-              'Contrôlez la visibilité de vos commerces. Les éléments "Publié" sont visibles par tous les citoyens sur la carte.',
-              style: TextStyle(color: AppTheme.onSurfaceVariant, fontSize: 14, height: 1.5),
-            ),
+            const Text('ContrÃ´lez la visibilitÃ© de vos commerces. Les Ã©lÃ©ments "PubliÃ©" sont visibles par tous les citoyens.',
+              style: TextStyle(color: AppTheme.onSurfaceVariant, fontSize: 14, height: 1.5)),
             const SizedBox(height: 20),
 
             // Info banner
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppTheme.primary.withOpacity(0.07),
+                color: AppTheme.primary.withValues(alpha: 0.07),
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: AppTheme.primary.withOpacity(0.2)),
+                border: Border.all(color: AppTheme.primary.withValues(alpha: 0.2)),
               ),
               child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 const Icon(Icons.info_rounded, color: AppTheme.primary, size: 20),
                 const SizedBox(width: 12),
-                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  const Text('Comment ça marche ?', style: TextStyle(fontWeight: FontWeight.w700, color: AppTheme.primary, fontSize: 13)),
-                  const SizedBox(height: 4),
-                  Text.rich(TextSpan(
-                    style: const TextStyle(color: AppTheme.onSurfaceVariant, fontSize: 13, height: 1.4),
-                    children: [
-                      const TextSpan(text: 'Un commerce en '),
-                      TextSpan(text: 'Brouillon', style: TextStyle(fontWeight: FontWeight.w700, color: AppTheme.onSurface)),
-                      const TextSpan(text: ' est uniquement visible par vous. Une fois '),
-                      TextSpan(text: 'Publié', style: TextStyle(fontWeight: FontWeight.w700, color: AppTheme.primary)),
-                      const TextSpan(text: ', votre visibilité est instantanée.'),
-                    ],
-                  )),
-                ])),
+                Expanded(child: Text.rich(TextSpan(
+                  style: const TextStyle(color: AppTheme.onSurfaceVariant, fontSize: 13, height: 1.4),
+                  children: [
+                    const TextSpan(text: 'Un commerce en '),
+                    const TextSpan(text: 'Brouillon', style: TextStyle(fontWeight: FontWeight.w700, color: AppTheme.onSurface)),
+                    const TextSpan(text: ' est uniquement visible par vous. Une fois '),
+                    const TextSpan(text: 'PubliÃ©', style: TextStyle(fontWeight: FontWeight.w700, color: AppTheme.primary)),
+                    const TextSpan(text: ', votre visibilitÃ© est instantanÃ©e.'),
+                  ],
+                ))),
               ]),
             ),
             const SizedBox(height: 24),
 
-            // Card du commerce actuel
+            // Card commerce
             commerceAsync.when(
               loading: () => const Center(child: CircularProgressIndicator(color: AppTheme.primary)),
-              error: (e, _) => const SizedBox.shrink(),
+              error: (_) => const SizedBox.shrink(),
               data: (commerce) => _buildCommerceCard(commerce),
             ),
 
             const SizedBox(height: 16),
 
-            // Bouton ajouter nouveau
+            // CTA nouveau commerce
             GestureDetector(
               onTap: () => context.push('/artisan/creer'),
               child: Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  border: Border.all(color: AppTheme.outlineVariant, width: 2, style: BorderStyle.solid),
+                  border: Border.all(color: AppTheme.outlineVariant, width: 2),
                   borderRadius: BorderRadius.circular(16),
-                  color: AppTheme.surfaceVariant.withOpacity(0.05),
                 ),
-                child: Column(children: [
-                  Container(
-                    width: 56, height: 56,
-                    decoration: BoxDecoration(color: AppTheme.primaryContainer.withOpacity(0.15), borderRadius: BorderRadius.circular(999)),
-                    child: const Icon(Icons.add_rounded, color: AppTheme.primary, size: 28),
-                  ),
-                  const SizedBox(height: 12),
-                  const Text('Nouveau commerce', style: TextStyle(fontFamily: 'Hanken Grotesk', fontSize: 17, fontWeight: FontWeight.w600, color: AppTheme.primary)),
-                  const SizedBox(height: 6),
-                  const Text('Préparez une nouvelle fiche pour augmenter votre visibilité.', textAlign: TextAlign.center, style: TextStyle(fontSize: 13, color: AppTheme.onSurfaceVariant)),
+                child: const Column(children: [
+                  Icon(Icons.add_rounded, color: AppTheme.primary, size: 32),
+                  SizedBox(height: 8),
+                  Text('Nouveau commerce', style: TextStyle(fontFamily: 'Hanken Grotesk', fontSize: 16, fontWeight: FontWeight.w600, color: AppTheme.primary)),
+                  SizedBox(height: 4),
+                  Text('CrÃ©ez une nouvelle fiche pour augmenter votre visibilitÃ©.',
+                    textAlign: TextAlign.center, style: TextStyle(fontSize: 13, color: AppTheme.onSurfaceVariant)),
                 ]),
               ),
             ),
@@ -167,102 +151,90 @@ class _GererPublicationPageState extends ConsumerState<GererPublicationPage> {
     );
   }
 
-  Widget _buildCommerceCard(commerce) {
+  Widget _buildCommerceCard(dynamic commerce) {
     return Container(
       decoration: BoxDecoration(
         color: AppTheme.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.outlineVariant.withOpacity(0.3)),
-        boxShadow: [BoxShadow(color: AppTheme.primary.withOpacity(0.05), blurRadius: 12, offset: const Offset(0, 2))],
+        border: Border.all(color: AppTheme.outlineVariant.withValues(alpha: 0.3)),
+        boxShadow: [BoxShadow(color: AppTheme.primary.withValues(alpha: 0.05), blurRadius: 12)],
       ),
       clipBehavior: Clip.hardEdge,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Image
-          Stack(children: [
-            SizedBox(
-              height: 180,
-              width: double.infinity,
-              child: commerce.photos.isNotEmpty
-                  ? Image.network(commerce.photos.first, fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => _imagePlaceholder(_estPublie))
-                  : _imagePlaceholder(_estPublie),
-            ),
-            // Badge statut
-            Positioned(top: 12, left: 12,
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                decoration: BoxDecoration(
-                  color: _estPublie ? AppTheme.primary : AppTheme.surfaceVariant,
-                  borderRadius: BorderRadius.circular(999),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Stack(children: [
+          SizedBox(
+            height: 180, width: double.infinity,
+            child: commerce.photos.isNotEmpty
+                ? Image.network(commerce.photos.first, fit: BoxFit.cover,
+                    errorBuilder: (_, _, _) => _imagePlaceholder())
+                : _imagePlaceholder(),
+          ),
+          Positioned(top: 12, left: 12,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+              decoration: BoxDecoration(
+                color: _estPublie ? AppTheme.primary : AppTheme.surfaceVariant,
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: Row(mainAxisSize: MainAxisSize.min, children: [
+                Container(
+                  width: 6, height: 6,
+                  decoration: BoxDecoration(
+                    color: _estPublie ? AppTheme.inversePrimary : AppTheme.onSurfaceVariant.withValues(alpha: 0.4),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
                 ),
-                child: Row(mainAxisSize: MainAxisSize.min, children: [
-                  if (_estPublie) ...[
-                    Container(width: 6, height: 6, decoration: BoxDecoration(color: AppTheme.inversePrimary, borderRadius: BorderRadius.circular(999))),
-                    const SizedBox(width: 6),
-                  ] else ...[
-                    Container(width: 6, height: 6, decoration: BoxDecoration(color: AppTheme.onSurfaceVariant.withOpacity(0.4), borderRadius: BorderRadius.circular(999))),
-                    const SizedBox(width: 6),
-                  ],
-                  Text(_estPublie ? 'Publié' : 'Brouillon',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: _estPublie ? AppTheme.onPrimary : AppTheme.onSurfaceVariant)),
-                ]),
-              )),
-          ]),
-
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(commerce.nom, style: const TextStyle(fontFamily: 'Hanken Grotesk', fontSize: 18, fontWeight: FontWeight.w600, color: AppTheme.primary)),
-              const SizedBox(height: 2),
-              Text(commerce.categorie, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.terracottaClay, letterSpacing: 0.3)),
-              const SizedBox(height: 8),
-              Row(children: [
-                const Icon(Icons.location_on_outlined, size: 14, color: AppTheme.onSurfaceVariant),
-                const SizedBox(width: 4),
-                Expanded(child: Text(commerce.descriptionAdresse ?? 'Localisation non renseignée',
-                  style: const TextStyle(fontSize: 12, color: AppTheme.onSurfaceVariant), overflow: TextOverflow.ellipsis)),
+                const SizedBox(width: 6),
+                Text(_estPublie ? 'PubliÃ©' : 'Brouillon',
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600,
+                    color: _estPublie ? AppTheme.onPrimary : AppTheme.onSurfaceVariant)),
               ]),
-              const Divider(height: 24, color: AppTheme.outlineVariant),
-              // Toggle visibilité
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                const Text('État de visibilité', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: AppTheme.onSurface)),
-                Row(children: [
-                  AnimatedDefaultTextStyle(
-                    duration: const Duration(milliseconds: 200),
-                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: _estPublie ? AppTheme.primary : AppTheme.onSurfaceVariant),
-                    child: Text(_estPublie ? 'Publié' : 'Privé'),
-                  ),
-                  const SizedBox(width: 10),
-                  Switch(
-                    value: _estPublie,
-                    onChanged: _isLoading ? null : (v) => setState(() => _estPublie = v),
-                    activeColor: AppTheme.primary,
-                    activeTrackColor: AppTheme.primaryContainer.withOpacity(0.4),
-                    inactiveThumbColor: AppTheme.onSurfaceVariant,
-                    inactiveTrackColor: AppTheme.surfaceVariant,
-                  ),
-                ]),
+            )),
+        ]),
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(commerce.nom, style: const TextStyle(fontFamily: 'Hanken Grotesk', fontSize: 18, fontWeight: FontWeight.w600, color: AppTheme.primary)),
+            const SizedBox(height: 2),
+            Text(commerce.categorie, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.terracottaClay)),
+            const SizedBox(height: 8),
+            Row(children: [
+              const Icon(Icons.location_on_outlined, size: 14, color: AppTheme.onSurfaceVariant),
+              const SizedBox(width: 4),
+              Expanded(child: Text(commerce.descriptionAdresse ?? 'Localisation non renseignÃ©e',
+                style: const TextStyle(fontSize: 12, color: AppTheme.onSurfaceVariant), overflow: TextOverflow.ellipsis)),
+            ]),
+            const Divider(height: 24, color: AppTheme.outlineVariant),
+            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+              const Text('Ã‰tat de visibilitÃ©', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: AppTheme.onSurface)),
+              Row(children: [
+                Text(_estPublie ? 'PubliÃ©' : 'PrivÃ©',
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600,
+                    color: _estPublie ? AppTheme.primary : AppTheme.onSurfaceVariant)),
+                const SizedBox(width: 10),
+                Switch(
+                  value: _estPublie,
+                  onChanged: _isLoading ? null : (v) => setState(() => _estPublie = v),
+                  activeThumbColor: AppTheme.onPrimary,
+                  activeTrackColor: AppTheme.primary,
+                  inactiveThumbColor: AppTheme.onSurfaceVariant,
+                  inactiveTrackColor: AppTheme.surfaceVariant,
+                ),
               ]),
             ]),
-          ),
-        ],
-      ),
+          ]),
+        ),
+      ]),
     );
   }
 
-  Widget _imagePlaceholder(bool published) {
+  Widget _imagePlaceholder() {
     return Container(
-      height: 180,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: published ? AppTheme.surfaceContainerHigh : AppTheme.surfaceContainerHighest,
-      ),
-      child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-        Icon(Icons.storefront_rounded, size: 48, color: published ? AppTheme.primary.withOpacity(0.4) : AppTheme.outlineVariant),
-      ]),
+      height: 180, width: double.infinity,
+      color: AppTheme.surfaceContainerHigh,
+      child: Center(child: Icon(Icons.storefront_rounded, size: 48,
+        color: _estPublie ? AppTheme.primary.withValues(alpha: 0.4) : AppTheme.outlineVariant)),
     );
   }
 
@@ -271,13 +243,13 @@ class _GererPublicationPageState extends ConsumerState<GererPublicationPage> {
       (Icons.dashboard_rounded, 'Dashboard', false, '/artisan/dashboard'),
       (Icons.add_circle_outline_rounded, 'Ajouter', false, '/artisan/creer'),
       (Icons.inventory_2_outlined, 'Mes Offres', false, ''),
-      (Icons.visibility_rounded, 'Visibilité', true, ''),
+      (Icons.visibility_rounded, 'VisibilitÃ©', true, ''),
     ];
     return Container(
       decoration: BoxDecoration(
         color: AppTheme.surface,
-        border: Border(top: BorderSide(color: AppTheme.outlineVariant.withOpacity(0.5))),
-        boxShadow: [BoxShadow(color: AppTheme.primary.withOpacity(0.05), blurRadius: 12, offset: const Offset(0, -4))],
+        border: Border(top: BorderSide(color: AppTheme.outlineVariant.withValues(alpha: 0.5))),
+        boxShadow: [BoxShadow(color: AppTheme.primary.withValues(alpha: 0.05), blurRadius: 12, offset: const Offset(0, -4))],
       ),
       padding: const EdgeInsets.fromLTRB(8, 8, 8, 20),
       child: Row(
@@ -288,13 +260,14 @@ class _GererPublicationPageState extends ConsumerState<GererPublicationPage> {
             duration: const Duration(milliseconds: 200),
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
             decoration: BoxDecoration(
-              color: item.$3 ? AppTheme.primaryContainer.withOpacity(0.2) : Colors.transparent,
+              color: item.$3 ? AppTheme.primaryContainer.withValues(alpha: 0.2) : Colors.transparent,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Column(mainAxisSize: MainAxisSize.min, children: [
               Icon(item.$1, color: item.$3 ? AppTheme.primary : AppTheme.onSurfaceVariant, size: 22),
               const SizedBox(height: 2),
-              Text(item.$2, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: item.$3 ? AppTheme.primary : AppTheme.onSurfaceVariant)),
+              Text(item.$2, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500,
+                color: item.$3 ? AppTheme.primary : AppTheme.onSurfaceVariant)),
             ]),
           ),
         )).toList(),
@@ -302,3 +275,4 @@ class _GererPublicationPageState extends ConsumerState<GererPublicationPage> {
     );
   }
 }
+
