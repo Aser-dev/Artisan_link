@@ -1,39 +1,25 @@
+// lib/domain/repositories/i_commerce_repository.dart
 import '../entities/commerce_entity.dart';
 
 abstract class ICommerceRepository {
-  Future<List<CommerceEntity>> getNearby({
+  Future<List<CommerceEntity>> getNearbyCommerces({
     required double latitude,
     required double longitude,
-    required double radiusKm,
-    required String category,
+    double rayonKm = 5.0,
+    String? categorie,
+    double? noteMinimale,
   });
 
+  Future<List<CommerceEntity>> searchCommerces({required String query});
+  Future<CommerceEntity> getCommerceById({required String id});
+  Future<List<CommerceEntity>> getMesCommerces({required String userId});
   Future<List<CommerceEntity>> getMyCommerces();
 
-  Future<CommerceEntity> createCommerce({
-    required String name,
-    required String category,
-    required double latitude,
-    required double longitude,
-    required String address,
-    required String note,
-  });
-
-  Future<CommerceEntity> updateCommerce({
-    required String id,
-    required String name,
-    required String category,
-    required double latitude,
-    required double longitude,
-    required String address,
-    required String note,
-  });
-
+  Future<CommerceEntity> createCommerce({required CommerceEntity commerce});
+  Future<CommerceEntity> updateCommerce({required CommerceEntity commerce});
   Future<void> togglePublication({
-    required String id,
-    required bool publish,
+    required String commerceId,
+    required bool publier,
   });
-
-  Future<CommerceEntity?> getCommerceById({required String id});
+  Future<void> deleteCommerce({required String commerceId});
 }
-

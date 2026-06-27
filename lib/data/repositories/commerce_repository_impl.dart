@@ -1,102 +1,85 @@
+// lib/data/repositories/commerce_repository_impl.dart
 import '../../domain/entities/commerce_entity.dart';
 import '../../domain/repositories/i_commerce_repository.dart';
 import '../datasources/remote/supabase_commerce_datasource.dart';
 import '../models/commerce_dto.dart';
 
-import 'package:supabase_flutter/supabase_flutter.dart';
-
 class CommerceRepositoryImpl implements ICommerceRepository {
-  final SupabaseCommerceDatasource ds;
-
-  CommerceRepositoryImpl(this.ds);
-
-  SupabaseClient get _client => ds.client;
+  final SupabaseCommerceDatasource _remote;
+  CommerceRepositoryImpl(this._remote);
 
   @override
-  Future<List<CommerceEntity>> getNearby({
+  Future<List<CommerceEntity>> getNearbyCommerces({
     required double latitude,
     required double longitude,
-    required double radiusKm,
-    required String category,
+    double rayonKm = 5.0,
+    String? categorie,
+    double? noteMinimale,
   }) async {
-    final rows = await ds.getNearby(
+    final dtos = await _remote.getNearbyCommerces(
       latitude: latitude,
       longitude: longitude,
-      radiusKm: radiusKm,
-      category: category,
+      rayonKm: rayonKm,
+      categorie: categorie,
+      noteMinimale: noteMinimale,
     );
+    return dtos.map((d) => d.toEntity()).toList();
+  }
 
-    return rows.map((e) => CommerceDto.fromMap(e).toEntity()).toList();
+  @override
+  Future<List<CommerceEntity>> searchCommerces({required String query}) async {
+    final dtos = await _remote.searchCommerces(query: query);
+    return dtos.map((d) => d.toEntity()).toList();
+  }
+
+  @override
+  Future<CommerceEntity> getCommerceById({required String id}) async {
+    final dto = await _remote.getCommerceById(id: id);
+    return dto.toEntity();
+  }
+
+  @override
+  Future<List<CommerceEntity>> getMesCommerces({required String userId}) async {
+    final dtos = await _remote.getMesCommerces(userId: userId);
+    return dtos.map((d) => d.toEntity()).toList();
   }
 
   @override
   Future<List<CommerceEntity>> getMyCommerces() async {
-    final rows = await ds.getMyCommerces();
-    return rows.map((e) => CommerceDto.fromMap(e).toEntity()).toList();
+    throw UnimplementedError('getMyCommerces() non implémenté');
   }
+
 
   @override
   Future<CommerceEntity> createCommerce({
-    required String name,
-    required String category,
-    required double latitude,
-    required double longitude,
-    required String address,
-    required String note,
+    required CommerceEntity commerce,
   }) async {
-    final ownerId = _client.auth.currentUser?.id;
-    if (ownerId == null) {
-      throw StateError('Not authenticated');
-    }
-
-    final row = await ds.createCommerce(
-      ownerId: ownerId,
-      name: name,
-      category: category,
-      latitude: latitude,
-      longitude: longitude,
-      address: address,
-      note: note,
+    final dto = await _remote.createCommerce(
+      dto: CommerceDto.fromEntity(commerce),
     );
-
-    return CommerceDto.fromMap(row).toEntity();
+    return dto.toEntity();
   }
 
   @override
   Future<CommerceEntity> updateCommerce({
-    required String id,
-    required String name,
-    required String category,
-    required double latitude,
-    required double longitude,
-    required String address,
-    required String note,
+    required CommerceEntity commerce,
   }) async {
-    final row = await ds.updateCommerce(
-      commerceId: id,
-      name: name,
-      category: category,
-      latitude: latitude,
-      longitude: longitude,
-      address: address,
-      note: note,
+    final dto = await _remote.updateCommerce(
+      dto: CommerceDto.fromEntity(commerce),
     );
-
-    return CommerceDto.fromMap(row).toEntity();
+    return dto.toEntity();
   }
 
   @override
   Future<void> togglePublication({
-    required String id,
-    required bool publish,
-  }) async {
-    await ds.togglePublication(commerceId: id, publish: publish);
+    required String commerceId,
+    required bool publier,
+  }) {
+    return _remote.togglePublication(commerceId: commerceId, publier: publier);
   }
 
   @override
-  Future<CommerceEntity?> getCommerceById({required String id}) async {
-    final row = await ds.getCommerceById(commerceId: id);
-    if (row == null) return null;
-    return CommerceDto.fromMap(row).toEntity();
+  Future<void> deleteCommerce({required String commerceId}) {
+    return _remote.deleteCommerce(commerceId: commerceId);
   }
 }
