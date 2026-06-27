@@ -10,7 +10,7 @@ class RatingStars extends StatelessWidget {
     super.key,
     required this.rating,
     this.size = 18,
-    this.color = Colors.amber,
+    this.color = const Color(0xFFFBC02D),
   });
 
   @override

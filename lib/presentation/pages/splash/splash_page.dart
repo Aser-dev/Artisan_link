@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/auth_provider.dart';
-import '../../../core/constants.dart';
+import '../../../core/theme/app_theme.dart';
 
 class SplashPage extends ConsumerStatefulWidget {
   const SplashPage({super.key});
@@ -12,69 +12,65 @@ class SplashPage extends ConsumerStatefulWidget {
   ConsumerState<SplashPage> createState() => _SplashPageState();
 }
 
-class _SplashPageState extends ConsumerState<SplashPage> {
+class _SplashPageState extends ConsumerState<SplashPage> with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+  late Animation<double> _fade;
+  late Animation<Offset> _slide;
+
   @override
   void initState() {
     super.initState();
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 900));
+    _fade = CurvedAnimation(parent: _ctrl, curve: Curves.easeOut);
+    _slide = Tween<Offset>(begin: const Offset(0, 0.12), end: Offset.zero)
+        .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOut));
+    _ctrl.forward();
     Future.delayed(const Duration(seconds: 2), _rediriger);
   }
 
+  @override
+  void dispose() { _ctrl.dispose(); super.dispose(); }
+
   Future<void> _rediriger() async {
     if (!mounted) return;
-    final authState = ref.read(authProvider);
-    if (authState.user == null) {
-      context.go('/login');
-    } else if (!authState.user!.onboardingFait) {
-      context.go('/onboarding');
-    } else if (authState.user!.estArtisan) {
-      context.go('/artisan/dashboard');
-    } else {
-      context.go('/citoyen');
-    }
+    final s = ref.read(authProvider);
+    if (s.user == null) context.go('/login');
+    else if (!s.user!.onboardingFait) context.go('/onboarding');
+    else if (s.user!.estArtisan) context.go('/artisan/dashboard');
+    else context.go('/citoyen');
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF2E4A0B),
+      backgroundColor: AppTheme.primaryContainer,
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 90,
-              height: 90,
-              decoration: BoxDecoration(
-                color: const Color(0xFF8CD82C),
-                borderRadius: BorderRadius.circular(24),
-              ),
-              child: const Icon(
-                Icons.handyman_rounded,
-                size: 48,
-                color: Color(0xFF1E1E1E),
-              ),
+        child: FadeTransition(
+          opacity: _fade,
+          child: SlideTransition(
+            position: _slide,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 100,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    color: AppTheme.inversePrimary,
+                    borderRadius: BorderRadius.circular(28),
+                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 24, offset: const Offset(0, 8))],
+                  ),
+                  child: const Icon(Icons.handyman_rounded, size: 52, color: AppTheme.primaryContainer),
+                ),
+                const SizedBox(height: 24),
+                const Text('Artisan Core', style: TextStyle(fontFamily: 'Hanken Grotesk', color: AppTheme.onPrimary, fontSize: 36, fontWeight: FontWeight.w800, letterSpacing: -0.5)),
+                const SizedBox(height: 8),
+                Text('Les artisans de chez nous, près de chez vous', style: TextStyle(color: AppTheme.onPrimary.withOpacity(0.7), fontSize: 14), textAlign: TextAlign.center),
+                const SizedBox(height: 64),
+                SizedBox(width: 28, height: 28, child: CircularProgressIndicator(color: AppTheme.inversePrimary, strokeWidth: 2.5, backgroundColor: Colors.white.withOpacity(0.2))),
+              ],
             ),
-            const SizedBox(height: 20),
-            const Text(
-              'ArtisanBF',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 34,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Les artisans de chez nous, près de chez vous',
-              style: TextStyle(color: Colors.white70, fontSize: 13),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 60),
-            const CircularProgressIndicator(
-              color: Color(0xFF8CD82C),
-              strokeWidth: 2,
-            ),
-          ],
+          ),
         ),
       ),
     );
