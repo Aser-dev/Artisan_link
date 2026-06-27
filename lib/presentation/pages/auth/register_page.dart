@@ -32,15 +32,13 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
 
   Future<void> _handleRegister() async {
     if (!_formKey.currentState!.validate()) return;
-
-    ref.read(authNotifierProvider.notifier).clearError();
     await ref
         .read(authNotifierProvider.notifier)
         .register(
-          name: _nameController.text.trim(),
+          nom: _nameController.text.trim(),
           email: _emailController.text.trim(),
+          telephone: '',
           password: _passwordController.text,
-          role: _selectedRole,
         );
   }
 
@@ -48,6 +46,41 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   Widget build(BuildContext context) {
     final authState = ref.watch(authNotifierProvider);
 
+    // Affiche l'écran de confirmation si l'email a été envoyé
+    if (authState.emailConfirmationSent) {
+      return Scaffold(
+        body: SafeArea(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(32),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.mark_email_read_outlined, size: 80, color: Color(0xFF00450D)),
+                  const SizedBox(height: 24),
+                  const Text('Vérifiez votre email', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Un lien de confirmation a été envoyé à ${_emailController.text.trim()}. Cliquez dessus pour activer votre compte.',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: Colors.grey, height: 1.5),
+                  ),
+                  const SizedBox(height: 32),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: OutlinedButton(
+                      onPressed: () => context.go('/login'),
+                      child: const Text('Aller à la connexion'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
     return Scaffold(
       appBar: AppBar(title: const Text('Inscription')),
       body: SafeArea(
@@ -206,7 +239,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                   const SizedBox(height: 8),
 
                   // Message d'erreur
-                  if (authState.error != null) ...[
+                  if (authState.erreur != null) ...[
                     const SizedBox(height: 8),
                     Container(
                       padding: const EdgeInsets.all(12),
@@ -225,7 +258,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              authState.error!,
+                              authState.erreur!,
                               style: TextStyle(
                                 color: Colors.red[700],
                                 fontSize: 13,

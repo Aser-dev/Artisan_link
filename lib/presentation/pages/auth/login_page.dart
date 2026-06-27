@@ -62,7 +62,16 @@ class _LoginPageState extends ConsumerState<LoginPage> with SingleTickerProvider
     );
     if (!mounted) return;
     final s = ref.read(authProvider);
-    if (s.erreur == null && s.user != null) context.go('/onboarding');
+    if (s.erreur == null && s.emailConfirmationSent) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Un lien de confirmation a été envoyé à ${_registerEmailCtrl.text.trim()}'),
+          backgroundColor: AppTheme.primary,
+          duration: const Duration(seconds: 5),
+        ),
+      );
+      _tabController.animateTo(0);
+    }
   }
 
   @override

@@ -4,7 +4,7 @@ import '../entities/user_entity.dart';
 abstract class IAuthRepository {
   Future<UserEntity> login({required String email, required String password});
 
-  Future<UserEntity> register({
+  Future<void> register({
     required String nom,
     required String email,
     required String telephone,
