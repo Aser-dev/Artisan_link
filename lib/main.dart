@@ -10,8 +10,8 @@ void main() async {
 
   // Initialiser Supabase (remplacer par vos vraies clés)
   await Supabase.initialize(
-    url: 'https://votre-projet.supabase.co',
-    anonKey: 'votre-clé-anon',
+    url: 'https://skebhzipxbzstmzqchhd.supabase.co',
+    anonKey: 'sb_publishable_C7sIHh2OpoW-WNkQiytPRw_YM5ojUQw',
   );
 
   runApp(const ProviderScope(child: ArtisanBfApp()));
