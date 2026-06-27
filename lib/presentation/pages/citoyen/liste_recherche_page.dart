@@ -1,4 +1,4 @@
-// lib/presentation/pages/citoyen/liste_recherche_page.dart
+﻿// lib/presentation/pages/citoyen/liste_recherche_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/commerce_provider.dart';
@@ -51,8 +51,8 @@ class _ListeRecherchePageState extends ConsumerState<ListeRecherchePage> {
                   decoration: BoxDecoration(
                     color: AppTheme.surfaceContainerLowest,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppTheme.outlineVariant.withOpacity(0.3)),
-                    boxShadow: [BoxShadow(color: AppTheme.primary.withOpacity(0.04), blurRadius: 8)],
+                    border: Border.all(color: AppTheme.outlineVariant.withValues(alpha: 0.3)),
+                    boxShadow: [BoxShadow(color: AppTheme.primary.withValues(alpha: 0.04), blurRadius: 8)],
                   ),
                   child: TextField(
                     controller: _searchCtrl,
@@ -138,7 +138,7 @@ class _ListeRecherchePageState extends ConsumerState<ListeRecherchePage> {
           decoration: BoxDecoration(
             color: selected ? AppTheme.primary : AppTheme.surfaceContainerLowest,
             borderRadius: BorderRadius.circular(999),
-            border: Border.all(color: selected ? AppTheme.primary : AppTheme.outlineVariant.withOpacity(0.5)),
+            border: Border.all(color: selected ? AppTheme.primary : AppTheme.outlineVariant.withValues(alpha: 0.5)),
           ),
           child: Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: selected ? AppTheme.onPrimary : AppTheme.onSurfaceVariant)),
         ),
@@ -162,9 +162,9 @@ class _ListeRecherchePageState extends ConsumerState<ListeRecherchePage> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
         decoration: BoxDecoration(
-          color: _noteFiltre != null ? AppTheme.savannahGold.withOpacity(0.15) : AppTheme.surfaceContainerLowest,
+          color: _noteFiltre != null ? AppTheme.savannahGold.withValues(alpha: 0.15) : AppTheme.surfaceContainerLowest,
           borderRadius: BorderRadius.circular(999),
-          border: Border.all(color: _noteFiltre != null ? AppTheme.savannahGold : AppTheme.outlineVariant.withOpacity(0.5)),
+          border: Border.all(color: _noteFiltre != null ? AppTheme.savannahGold : AppTheme.outlineVariant.withValues(alpha: 0.5)),
         ),
         child: Row(children: [
           Icon(Icons.star_rounded, color: _noteFiltre != null ? AppTheme.savannahGold : AppTheme.onSurfaceVariant, size: 16),

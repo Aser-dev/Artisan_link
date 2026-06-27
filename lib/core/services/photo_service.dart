@@ -34,7 +34,7 @@ class PhotoService {
       final compressedDir = await Directory.systemTemp.createTemp();
       final compressedPath = '${compressedDir.path}/${Uuid().v4()}.jpg';
 
-      final compressedFilePath = await FlutterImageCompress.compressAndGetFile(
+      final XFile? compressedFilePath = await FlutterImageCompress.compressAndGetFile(
         path,
         compressedPath,
         quality: quality,
@@ -42,9 +42,7 @@ class PhotoService {
 
       if (compressedFilePath == null) continue;
 
-      final fileBytes = await File(
-        (compressedFilePath as String),
-      ).readAsBytes();
+      final fileBytes = await File(compressedFilePath.path).readAsBytes();
 
       final fileName = 'commerces/${Uuid().v4()}.jpg';
 

@@ -1,4 +1,4 @@
-// lib/presentation/pages/citoyen/detail_commerce_page.dart
+﻿// lib/presentation/pages/citoyen/detail_commerce_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -46,7 +46,7 @@ class _DetailCommercePageState extends ConsumerState<DetailCommercePage> {
                 onTap: () => Navigator.pop(context),
                 child: Container(
                   margin: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(color: AppTheme.surfaceContainerLowest.withOpacity(0.9), borderRadius: BorderRadius.circular(12)),
+                  decoration: BoxDecoration(color: AppTheme.surfaceContainerLowest.withValues(alpha: 0.9), borderRadius: BorderRadius.circular(12)),
                   child: const Icon(Icons.arrow_back_rounded, color: AppTheme.onSurface, size: 20),
                 ),
               ),
@@ -56,7 +56,7 @@ class _DetailCommercePageState extends ConsumerState<DetailCommercePage> {
                   child: Container(
                     margin: const EdgeInsets.all(8),
                     padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(color: AppTheme.surfaceContainerLowest.withOpacity(0.9), borderRadius: BorderRadius.circular(12)),
+                    decoration: BoxDecoration(color: AppTheme.surfaceContainerLowest.withValues(alpha: 0.9), borderRadius: BorderRadius.circular(12)),
                     child: const Icon(Icons.share_rounded, color: AppTheme.onSurface, size: 20),
                   ),
                 ),
@@ -77,12 +77,12 @@ class _DetailCommercePageState extends ConsumerState<DetailCommercePage> {
                   children: [
                     // Badges
                     Row(children: [
-                      _Badge(label: commerce.categorie, color: AppTheme.terracottaClay, bg: AppTheme.terracottaClay.withOpacity(0.1)),
+                      _Badge(label: commerce.categorie, color: AppTheme.terracottaClay, bg: AppTheme.terracottaClay.withValues(alpha: 0.1)),
                       const SizedBox(width: 8),
                       _Badge(
                         label: commerce.estPublie ? 'Ouvert' : 'Fermé',
                         color: commerce.estPublie ? AppTheme.primaryContainer : AppTheme.error,
-                        bg: commerce.estPublie ? AppTheme.primaryContainer.withOpacity(0.1) : AppTheme.errorContainer,
+                        bg: commerce.estPublie ? AppTheme.primaryContainer.withValues(alpha: 0.1) : AppTheme.errorContainer,
                         dot: true,
                       ),
                     ]),
@@ -107,8 +107,8 @@ class _DetailCommercePageState extends ConsumerState<DetailCommercePage> {
                       decoration: BoxDecoration(
                         color: AppTheme.surfaceContainerLowest,
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: AppTheme.outlineVariant.withOpacity(0.3)),
-                        boxShadow: [BoxShadow(color: AppTheme.primary.withOpacity(0.04), blurRadius: 12)],
+                        border: Border.all(color: AppTheme.outlineVariant.withValues(alpha: 0.3)),
+                        boxShadow: [BoxShadow(color: AppTheme.primary.withValues(alpha: 0.04), blurRadius: 12)],
                       ),
                       child: Column(children: [
                         if (commerce.horaires != null) ...[
@@ -202,7 +202,7 @@ class _DetailCommercePageState extends ConsumerState<DetailCommercePage> {
                       data: (avis) => avis.isEmpty
                           ? Container(
                               padding: const EdgeInsets.all(20),
-                              decoration: BoxDecoration(color: AppTheme.surfaceContainerLowest, borderRadius: BorderRadius.circular(14), border: Border.all(color: AppTheme.outlineVariant.withOpacity(0.3))),
+                              decoration: BoxDecoration(color: AppTheme.surfaceContainerLowest, borderRadius: BorderRadius.circular(14), border: Border.all(color: AppTheme.outlineVariant.withValues(alpha: 0.3))),
                               child: const Center(child: Text('Aucun avis pour l\'instant.', style: TextStyle(color: AppTheme.onSurfaceVariant))))
                           : Column(
                               children: avis.map((a) => Container(
@@ -211,13 +211,13 @@ class _DetailCommercePageState extends ConsumerState<DetailCommercePage> {
                                 decoration: BoxDecoration(
                                   color: AppTheme.surfaceContainerLowest,
                                   borderRadius: BorderRadius.circular(14),
-                                  border: Border.all(color: AppTheme.outlineVariant.withOpacity(0.3)),
-                                  boxShadow: [BoxShadow(color: AppTheme.primary.withOpacity(0.03), blurRadius: 8)],
+                                  border: Border.all(color: AppTheme.outlineVariant.withValues(alpha: 0.3)),
+                                  boxShadow: [BoxShadow(color: AppTheme.primary.withValues(alpha: 0.03), blurRadius: 8)],
                                 ),
                                 child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                                   Container(
                                     width: 40, height: 40,
-                                    decoration: BoxDecoration(color: AppTheme.primaryContainer.withOpacity(0.2), borderRadius: BorderRadius.circular(999)),
+                                    decoration: BoxDecoration(color: AppTheme.primaryContainer.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(999)),
                                     child: Center(child: Text(
                                       a.auteurNom.isNotEmpty ? a.auteurNom[0].toUpperCase() : '?',
                                       style: const TextStyle(fontWeight: FontWeight.w700, color: AppTheme.primaryContainer, fontSize: 16),
@@ -237,7 +237,7 @@ class _DetailCommercePageState extends ConsumerState<DetailCommercePage> {
                                     const SizedBox(height: 6),
                                     Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                      decoration: BoxDecoration(color: AppTheme.terracottaClay.withOpacity(0.1), borderRadius: BorderRadius.circular(6)),
+                                      decoration: BoxDecoration(color: AppTheme.terracottaClay.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(6)),
                                       child: Row(mainAxisSize: MainAxisSize.min, children: [
                                         const Icon(Icons.auto_awesome_rounded, size: 11, color: AppTheme.terracottaClay),
                                         const SizedBox(width: 4),

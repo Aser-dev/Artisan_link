@@ -1,4 +1,4 @@
-// lib/presentation/pages/auth/reset_password_page.dart
+﻿// lib/presentation/pages/auth/reset_password_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -54,7 +54,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
                     color: const Color(0xFF8CD82C),
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
-                      BoxShadow(color: const Color(0xFF8CD82C).withOpacity(0.3), blurRadius: 16, offset: const Offset(0, 6)),
+                      BoxShadow(color: const Color(0xFF8CD82C).withValues(alpha: 0.3), blurRadius: 16, offset: const Offset(0, 6)),
                     ],
                   ),
                   child: const Icon(Icons.handyman_rounded, size: 36, color: Color(0xFF1E1E1E)),
