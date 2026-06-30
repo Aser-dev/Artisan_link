@@ -1,5 +1,7 @@
 // lib/presentation/providers/auth_provider.dart
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../core/di/injection_container.dart';
 
@@ -26,8 +28,22 @@ class AuthState {
 
 class AuthNotifier extends StateNotifier<AuthState> {
   final Ref _ref;
+  VoidCallback? _passwordRecoveryCallback;
+
+  void setPasswordRecoveryCallback(VoidCallback cb) {
+    _passwordRecoveryCallback = cb;
+  }
+
   AuthNotifier(this._ref) : super(const AuthState()) {
     _init();
+    Supabase.instance.client.auth.onAuthStateChange.listen((data) {
+      if (data.event == AuthChangeEvent.signedIn && state.user == null) {
+        _init();
+      }
+      if (data.event == AuthChangeEvent.passwordRecovery) {
+        _passwordRecoveryCallback?.call();
+      }
+    });
   }
 
   Future<void> _init() async {
@@ -43,31 +59,17 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> login({required String email, required String password}) async {
     state = state.copyWith(isLoading: true, clearErreur: true);
     try {
-      final user = await _ref
-          .read(loginUsecaseProvider)
-          .call(email: email, password: password);
+      final user = await _ref.read(loginUsecaseProvider).call(email: email, password: password);
       state = state.copyWith(user: user, isLoading: false);
     } catch (e) {
       state = state.copyWith(isLoading: false, erreur: e.toString());
     }
   }
 
-  Future<void> register({
-    required String nom,
-    required String email,
-    required String telephone,
-    required String password,
-  }) async {
+  Future<void> register({required String email, required String password}) async {
     state = state.copyWith(isLoading: true, clearErreur: true);
     try {
-      final user = await _ref
-          .read(registerUsecaseProvider)
-          .call(
-            nom: nom,
-            email: email,
-            telephone: telephone,
-            password: password,
-          );
+      final user = await _ref.read(registerUsecaseProvider).call(email: email, password: password);
       state = state.copyWith(user: user, isLoading: false);
     } catch (e) {
       state = state.copyWith(isLoading: false, erreur: e.toString());
@@ -90,9 +92,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     if (state.user == null) return;
     state = state.copyWith(isLoading: true);
     try {
-      await _ref
-          .read(setRoleUsecaseProvider)
-          .call(userId: state.user!.id, role: role);
+      await _ref.read(setRoleUsecaseProvider).call(userId: state.user!.id, role: role);
       state = state.copyWith(
         user: state.user!.copyWith(roleActif: role, onboardingFait: true),
         isLoading: false,
@@ -111,6 +111,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   return AuthNotifier(ref);
 });
+
+final authNotifierProvider = authProvider;
 
 final currentUserProvider = Provider<UserEntity?>((ref) {
   return ref.watch(authProvider).user;

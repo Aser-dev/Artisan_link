@@ -6,17 +6,7 @@ class RegisterUsecase {
   final IAuthRepository repository;
   const RegisterUsecase(this.repository);
 
-  Future<UserEntity> call({
-    required String nom,
-    required String email,
-    required String telephone,
-    required String password,
-  }) {
-    return repository.register(
-      nom: nom,
-      email: email,
-      telephone: telephone,
-      password: password,
-    );
+  Future<UserEntity> call({required String email, required String password}) {
+    return repository.register(email: email, password: password);
   }
 }

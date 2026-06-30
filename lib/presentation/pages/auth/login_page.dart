@@ -1,4 +1,4 @@
-// lib/presentation/pages/auth/login_page.dart
+﻿// lib/presentation/pages/auth/login_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -57,12 +57,14 @@ class _LoginPageState extends ConsumerState<LoginPage> with SingleTickerProvider
   Future<void> _sInscrire() async {
     if (!_registerFormKey.currentState!.validate()) return;
     await ref.read(authProvider.notifier).register(
-      nom: _registerNomCtrl.text.trim(), email: _registerEmailCtrl.text.trim(),
-      telephone: _registerTelCtrl.text.trim(), password: _registerPasswordCtrl.text,
+      email: _registerEmailCtrl.text.trim(),
+      password: _registerPasswordCtrl.text,
     );
     if (!mounted) return;
     final s = ref.read(authProvider);
-    if (s.erreur == null && s.user != null) context.go('/onboarding');
+    if (s.erreur == null && s.user != null) {
+      context.go(s.user!.onboardingFait ? (s.user!.estArtisan ? '/artisan/dashboard' : '/citoyen') : '/onboarding');
+    }
   }
 
   @override
@@ -98,8 +100,8 @@ class _LoginPageState extends ConsumerState<LoginPage> with SingleTickerProvider
                 decoration: BoxDecoration(
                   color: AppTheme.surfaceContainerLowest,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppTheme.outlineVariant.withOpacity(0.3)),
-                  boxShadow: [BoxShadow(color: AppTheme.primary.withOpacity(0.05), blurRadius: 16)],
+                  border: Border.all(color: AppTheme.outlineVariant.withValues(alpha: 0.3)),
+                  boxShadow: [BoxShadow(color: AppTheme.primary.withValues(alpha: 0.05), blurRadius: 16)],
                 ),
                 child: Column(
                   children: [
@@ -112,7 +114,7 @@ class _LoginPageState extends ConsumerState<LoginPage> with SingleTickerProvider
                         child: TabBar(
                           controller: _tabController,
                           indicator: BoxDecoration(color: AppTheme.surfaceContainerLowest, borderRadius: BorderRadius.circular(8),
-                            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 4)]),
+                            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 4)]),
                           labelColor: AppTheme.onSurface,
                           unselectedLabelColor: AppTheme.onSurfaceVariant,
                           labelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),

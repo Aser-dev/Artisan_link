@@ -1,26 +1,24 @@
 // lib/core/theme/app_theme.dart
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  // Primary - Trust Green
   static const Color primary = Color(0xFF00450D);
+
+  // Missing theme tokens used by accueil_citoyen_page
+  static const Color background = neutralSand;
+  static const Color tertiaryContainer = Color(0xFFFFF3E0);
+  static const Color onTertiaryContainer = Color(0xFF4A2B00);
+
   static const Color primaryContainer = Color(0xFF1B5E20);
   static const Color onPrimary = Color(0xFFFFFFFF);
   static const Color onPrimaryContainer = Color(0xFF90D689);
   static const Color inversePrimary = Color(0xFF91D78A);
-
-  // Secondary - Terracotta
   static const Color secondary = Color(0xFFB22C01);
   static const Color secondaryContainer = Color(0xFFFF6338);
   static const Color onSecondary = Color(0xFFFFFFFF);
   static const Color terracottaClay = Color(0xFFD87D4A);
-
-  // Accent
   static const Color savannahGold = Color(0xFFFBC02D);
-  static const Color deepTeal = Color(0xFF004D40);
-
-  // Surface
-  static const Color background = Color(0xFFF7FBF1);
   static const Color neutralSand = Color(0xFFF5F5F1);
   static const Color surface = Color(0xFFF7FBF1);
   static const Color surfaceContainerLowest = Color(0xFFFFFFFF);
@@ -29,23 +27,21 @@ class AppTheme {
   static const Color surfaceContainerHigh = Color(0xFFE6E9E0);
   static const Color surfaceContainerHighest = Color(0xFFE0E4DB);
   static const Color surfaceVariant = Color(0xFFE0E4DB);
-
-  // On Surface
   static const Color onSurface = Color(0xFF191D17);
   static const Color onSurfaceVariant = Color(0xFF41493E);
-
-  // Outline
   static const Color outline = Color(0xFF717A6D);
   static const Color outlineVariant = Color(0xFFC0C9BB);
-
-  // Error
   static const Color error = Color(0xFFBA1A1A);
   static const Color errorContainer = Color(0xFFFFDAD6);
-
+ 
+  static const Color deepTeal = Color(0xFF004D40);
+  static const Color secondaryFixed = Color(0xFFFFF3E0);
+  static const Color onSecondaryFixedVariant = Color(0xFF4A2B00);
+  
   static ThemeData light() {
     return ThemeData(
       useMaterial3: true,
-      fontFamily: 'Be Vietnam Pro',
+      textTheme: GoogleFonts.beVietnamProTextTheme(),
       scaffoldBackgroundColor: neutralSand,
       colorScheme: const ColorScheme.light(
         primary: primary,
@@ -62,15 +58,13 @@ class AppTheme {
         outlineVariant: outlineVariant,
         error: error,
         errorContainer: errorContainer,
-        background: neutralSand,
       ),
-      appBarTheme: const AppBarTheme(
+      appBarTheme: AppBarTheme(
         backgroundColor: surfaceContainerLow,
         elevation: 0,
         foregroundColor: onSurface,
         centerTitle: false,
-        titleTextStyle: TextStyle(
-          fontFamily: 'Hanken Grotesk',
+        titleTextStyle: GoogleFonts.hankenGrotesk(
           fontSize: 20,
           fontWeight: FontWeight.w700,
           color: primary,
@@ -105,7 +99,6 @@ class AppTheme {
           elevation: 2,
           minimumSize: const Size(double.infinity, 52),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16, fontFamily: 'Be Vietnam Pro'),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
@@ -122,12 +115,12 @@ class AppTheme {
         labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: surfaceContainerLowest,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: BorderSide(color: outlineVariant.withOpacity(0.3)),
+          side: BorderSide(color: outlineVariant.withValues(alpha: 0.3)),
         ),
       ),
     );

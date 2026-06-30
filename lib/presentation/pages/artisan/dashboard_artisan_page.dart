@@ -1,4 +1,4 @@
-// lib/presentation/pages/artisan/dashboard_artisan_page.dart
+﻿// lib/presentation/pages/artisan/dashboard_artisan_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -187,7 +187,7 @@ class _StatCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppTheme.surfaceContainerLowest,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppTheme.outlineVariant.withOpacity(0.3)),
+          border: Border.all(color: AppTheme.outlineVariant.withValues(alpha: 0.3)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -222,7 +222,7 @@ class _ActionChip extends StatelessWidget {
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-        decoration: BoxDecoration(color: color.withOpacity(0.15), borderRadius: BorderRadius.circular(8), border: Border.all(color: color.withOpacity(0.3))),
+        decoration: BoxDecoration(color: color.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8), border: Border.all(color: color.withValues(alpha: 0.3))),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -252,8 +252,8 @@ class _BottomNav extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: AppTheme.surface,
-        border: Border(top: BorderSide(color: AppTheme.outlineVariant.withOpacity(0.5))),
-        boxShadow: [BoxShadow(color: AppTheme.primary.withOpacity(0.05), blurRadius: 12, offset: const Offset(0, -4))],
+        border: Border(top: BorderSide(color: AppTheme.outlineVariant.withValues(alpha: 0.5))),
+        boxShadow: [BoxShadow(color: AppTheme.primary.withValues(alpha: 0.05), blurRadius: 12, offset: const Offset(0, -4))],
       ),
       padding: const EdgeInsets.fromLTRB(8, 8, 8, 20),
       child: Row(
@@ -266,7 +266,7 @@ class _BottomNav extends StatelessWidget {
               duration: const Duration(milliseconds: 200),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
               decoration: BoxDecoration(
-                color: selected ? AppTheme.primaryContainer.withOpacity(0.2) : Colors.transparent,
+                color: selected ? AppTheme.primaryContainer.withValues(alpha: 0.2) : Colors.transparent,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(

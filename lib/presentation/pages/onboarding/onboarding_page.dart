@@ -1,4 +1,4 @@
-// lib/presentation/pages/onboarding/onboarding_page.dart
+﻿// lib/presentation/pages/onboarding/onboarding_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -59,7 +59,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                 icon: Icons.handyman_rounded, couleur: AppTheme.secondary, bg: Color(0xFFFFF3F0)),
 
               const Spacer(),
-              Text('Vous pouvez changer de mode depuis votre profil.', style: TextStyle(color: AppTheme.onSurfaceVariant.withOpacity(0.7), fontSize: 12), textAlign: TextAlign.center),
+              Text('Vous pouvez changer de mode depuis votre profil.', style: TextStyle(color: AppTheme.onSurfaceVariant.withValues(alpha: 0.7), fontSize: 12), textAlign: TextAlign.center),
               const SizedBox(height: 14),
               SizedBox(width: double.infinity, height: 54,
                 child: ElevatedButton(
@@ -90,8 +90,8 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
         decoration: BoxDecoration(
           color: AppTheme.surfaceContainerLowest,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: selected ? couleur : AppTheme.outlineVariant.withOpacity(0.4), width: selected ? 2 : 1),
-          boxShadow: selected ? [BoxShadow(color: couleur.withOpacity(0.12), blurRadius: 14, offset: const Offset(0, 4))] : [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8)],
+          border: Border.all(color: selected ? couleur : AppTheme.outlineVariant.withValues(alpha: 0.4), width: selected ? 2 : 1),
+          boxShadow: selected ? [BoxShadow(color: couleur.withValues(alpha: 0.12), blurRadius: 14, offset: const Offset(0, 4))] : [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8)],
         ),
         child: Row(children: [
           Container(width: 56, height: 56, decoration: BoxDecoration(color: selected ? couleur : bg, borderRadius: BorderRadius.circular(14)),
