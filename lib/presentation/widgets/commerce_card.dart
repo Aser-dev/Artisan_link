@@ -1,10 +1,14 @@
 ﻿// lib/presentation/widgets/commerce_card.dart
+// Carte d'affichage d'un commerce au design sombre minimaliste
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../domain/entities/commerce_entity.dart';
 import '../../core/theme/app_theme.dart';
+import 'design_system.dart';
 
 class CommerceCard extends StatelessWidget {
   final CommerceEntity commerce;
+
   const CommerceCard({super.key, required this.commerce});
 
   @override
@@ -12,21 +16,27 @@ class CommerceCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceContainerLowest,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.outlineVariant.withValues(alpha: 0.3)),
-        boxShadow: [BoxShadow(color: AppTheme.primary.withValues(alpha: 0.05), blurRadius: 12, offset: const Offset(0, 2))],
+        color: AppTheme.surfaceCard,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppTheme.bordureSubtile),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Image banner
           ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
             child: commerce.photos.isNotEmpty
-                ? Image.network(commerce.photos.first, height: 160, width: double.infinity, fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => _iconBanner())
+                ? Image.network(
+                    commerce.photos.first,
+                    height: 160,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, _, _) => _iconBanner(),
+                  )
                 : _iconBanner(),
           ),
+          // Content
           Padding(
             padding: const EdgeInsets.all(14),
             child: Column(
@@ -36,51 +46,78 @@ class CommerceCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
-                      child: Text(commerce.nom,
-                        style: const TextStyle(fontFamily: 'Hanken Grotesk', fontSize: 17, fontWeight: FontWeight.w600, color: AppTheme.primary),
-                        maxLines: 1, overflow: TextOverflow.ellipsis),
+                      child: Text(
+                        commerce.nom,
+                        style: GoogleFonts.inter(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.textePrimaire,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                    Row(children: [
-                      const Icon(Icons.star_rounded, color: AppTheme.savannahGold, size: 16),
-                      const SizedBox(width: 2),
-                      Text(commerce.noteMoyenne.toStringAsFixed(1),
-                        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-                    ]),
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.star_rounded,
+                          color: Color(0xFF8CD82C),
+                          size: 16,
+                        ),
+                        const SizedBox(width: 2),
+                        Text(
+                          commerce.noteMoyenne.toStringAsFixed(1),
+                          style: GoogleFonts.inter(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                            color: AppTheme.textePrimaire,
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
                 const SizedBox(height: 4),
-                Text(commerce.categorie,
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.terracottaClay, letterSpacing: 0.3)),
+                Text(
+                  commerce.categorie,
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.accentPrimaire,
+                    letterSpacing: 0.3,
+                  ),
+                ),
                 const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
-                      child: Row(children: [
-                        const Icon(Icons.location_on_outlined, size: 13, color: AppTheme.onSurfaceVariant),
-                        const SizedBox(width: 4),
-                        Expanded(child: Text(
-                          commerce.descriptionAdresse ?? 'Localisation',
-                          style: const TextStyle(fontSize: 12, color: AppTheme.onSurfaceVariant),
-                          overflow: TextOverflow.ellipsis,
-                        )),
-                      ]),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.location_on_outlined,
+                            size: 13,
+                            color: AppTheme.texteSecondaire,
+                          ),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              commerce.descriptionAdresse ?? 'Localisation',
+                              style: GoogleFonts.inter(
+                                fontSize: 12,
+                                color: AppTheme.texteSecondaire,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: commerce.estPublie
-                            ? AppTheme.primaryContainer.withValues(alpha: 0.15)
-                            : AppTheme.surfaceContainerHigh,
-                        borderRadius: BorderRadius.circular(999),
-                      ),
-                      child: Text(
-                        commerce.estPublie ? 'PubliÃ©' : 'Brouillon',
-                        style: TextStyle(
-                          fontSize: 11, fontWeight: FontWeight.w600,
-                          color: commerce.estPublie ? AppTheme.primaryContainer : AppTheme.onSurfaceVariant,
-                        ),
-                      ),
+                    StatutBadge(
+                      label: commerce.estPublie ? 'Publié' : 'Brouillon',
+                      actif: commerce.estPublie,
+                      couleurActive: AppTheme.accentPrimaire,
+                      couleurInactive: AppTheme.texteTertiaire,
                     ),
                   ],
                 ),
@@ -94,21 +131,33 @@ class CommerceCard extends StatelessWidget {
 
   Widget _iconBanner() {
     return Container(
-      height: 160, width: double.infinity,
-      color: AppTheme.surfaceContainerHighest,
-      child: Center(child: Icon(_getIcon(commerce.categorie), size: 52, color: AppTheme.outlineVariant)),
+      height: 160,
+      width: double.infinity,
+      color: AppTheme.surfaceCardHover,
+      child: Center(
+        child: Icon(
+          _getIcon(commerce.categorie),
+          size: 52,
+          color: AppTheme.texteTertiaire,
+        ),
+      ),
     );
   }
 
   IconData _getIcon(String cat) {
     switch (cat.toLowerCase()) {
-      case 'mÃ©canicien': return Icons.build_rounded;
-      case 'couturier': return Icons.checkroom_rounded;
-      case 'coiffeur': return Icons.content_cut_rounded;
-      case 'soudeur': return Icons.hardware_rounded;
-      case 'Ã©lectricien': return Icons.electrical_services_rounded;
-      default: return Icons.storefront_rounded;
+      case 'mécanicien':
+        return Icons.build_rounded;
+      case 'couturier':
+        return Icons.checkroom_rounded;
+      case 'coiffeur':
+        return Icons.content_cut_rounded;
+      case 'soudeur':
+        return Icons.hardware_rounded;
+      case 'électricien':
+        return Icons.electrical_services_rounded;
+      default:
+        return Icons.storefront_rounded;
     }
   }
 }
-
