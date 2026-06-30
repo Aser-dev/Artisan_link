@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'core/routes/app_router.dart';
+import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'presentation/providers/auth_provider.dart';
 
@@ -27,17 +27,18 @@ class _ArtisanBfAppState extends ConsumerState<ArtisanBfApp> {
   void initState() {
     super.initState();
     ref.read(authProvider.notifier).setPasswordRecoveryCallback(() {
-      appRouter.go('/reset-password-confirm');
+      ref.read(appRouterProvider).go('/reset-password-confirm');
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final router = ref.watch(appRouterProvider);
     return MaterialApp.router(
-      title: 'Artisan Core',
+      title: 'Artisan BF',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.light(),
-      routerConfig: appRouter,
+      theme: AppTheme.dark(),
+      routerConfig: router,
     );
   }
 }

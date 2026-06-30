@@ -1,7 +1,9 @@
 // lib/presentation/pages/splash/splash_page.dart
+// Écran de démarrage avec animation et fond sombre
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../providers/auth_provider.dart';
 import '../../../core/theme/app_theme.dart';
 
@@ -12,7 +14,8 @@ class SplashPage extends ConsumerStatefulWidget {
   ConsumerState<SplashPage> createState() => _SplashPageState();
 }
 
-class _SplashPageState extends ConsumerState<SplashPage> with SingleTickerProviderStateMixin {
+class _SplashPageState extends ConsumerState<SplashPage>
+    with SingleTickerProviderStateMixin {
   late AnimationController _ctrl;
   late Animation<double> _fade;
   late Animation<Offset> _slide;
@@ -20,10 +23,15 @@ class _SplashPageState extends ConsumerState<SplashPage> with SingleTickerProvid
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 900));
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    );
     _fade = CurvedAnimation(parent: _ctrl, curve: Curves.easeOut);
-    _slide = Tween<Offset>(begin: const Offset(0, 0.12), end: Offset.zero)
-        .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOut));
+    _slide = Tween<Offset>(
+      begin: const Offset(0, 0.12),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOut));
     _ctrl.forward();
     Future.delayed(const Duration(seconds: 2), _rediriger);
   }
@@ -51,7 +59,7 @@ class _SplashPageState extends ConsumerState<SplashPage> with SingleTickerProvid
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.primaryContainer,
+      backgroundColor: AppTheme.fondPrincipal,
       body: Center(
         child: FadeTransition(
           opacity: _fade,
@@ -60,29 +68,47 @@ class _SplashPageState extends ConsumerState<SplashPage> with SingleTickerProvid
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                // Logo
                 Container(
-                  width: 100, height: 100,
+                  width: 100,
+                  height: 100,
                   decoration: BoxDecoration(
-                    color: AppTheme.inversePrimary,
+                    color: AppTheme.accentSecondaire,
                     borderRadius: BorderRadius.circular(28),
-                    boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 24, offset: const Offset(0, 8))],
                   ),
-                  child: const Icon(Icons.handyman_rounded, size: 52, color: AppTheme.primaryContainer),
+                  child: const Icon(
+                    Icons.handyman_rounded,
+                    size: 52,
+                    color: AppTheme.accentPrimaire,
+                  ),
                 ),
                 const SizedBox(height: 24),
-                const Text('Artisan Core',
-                  style: TextStyle(fontFamily: 'Hanken Grotesk', color: AppTheme.onPrimary, fontSize: 36, fontWeight: FontWeight.w800, letterSpacing: -0.5)),
+                Text(
+                  'Artisan BF',
+                  style: GoogleFonts.inter(
+                    color: AppTheme.textePrimaire,
+                    fontSize: 36,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.5,
+                  ),
+                ),
                 const SizedBox(height: 8),
-                Text('Les artisans de chez nous, près de chez vous',
-                  style: TextStyle(color: AppTheme.onPrimary.withValues(alpha: 0.7), fontSize: 14),
-                  textAlign: TextAlign.center),
+                Text(
+                  'Les artisans de chez nous, près de chez vous',
+                  style: GoogleFonts.inter(
+                    color: AppTheme.texteSecondaire,
+                    fontSize: 14,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
                 const SizedBox(height: 64),
                 SizedBox(
-                  width: 28, height: 28,
+                  width: 28,
+                  height: 28,
                   child: CircularProgressIndicator(
-                    color: AppTheme.inversePrimary,
+                    color: AppTheme.accentPrimaire,
                     strokeWidth: 2.5,
-                    backgroundColor: Colors.white.withValues(alpha: 0.2),
+                    backgroundColor: AppTheme.bordureSubtile,
                   ),
                 ),
               ],

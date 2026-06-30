@@ -1,8 +1,11 @@
 ﻿// lib/presentation/pages/auth/reset_password_page.dart
+// Demande de réinitialisation de mot de passe par email
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../providers/auth_provider.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/validators.dart';
 
 class ResetPasswordPage extends ConsumerStatefulWidget {
@@ -25,7 +28,9 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
 
   Future<void> _envoyer() async {
     if (!_formKey.currentState!.validate()) return;
-    final succes = await ref.read(authProvider.notifier).resetPassword(email: _emailCtrl.text.trim());
+    final succes = await ref.read(authProvider.notifier).resetPassword(
+          email: _emailCtrl.text.trim(),
+        );
     if (succes && mounted) setState(() => _envoye = true);
   }
 
@@ -34,33 +39,31 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
     final authState = ref.watch(authProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFF8F9FA),
-        elevation: 0,
-        foregroundColor: const Color(0xFF1E1E1E),
-      ),
+      backgroundColor: AppTheme.fondPrincipal,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Column(
               children: [
+                const SizedBox(height: 40),
                 // Logo
                 Container(
                   width: 72,
                   height: 72,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF8CD82C),
+                    color: AppTheme.accentSecondaire,
                     borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(color: const Color(0xFF8CD82C).withValues(alpha: 0.3), blurRadius: 16, offset: const Offset(0, 6)),
-                    ],
                   ),
-                  child: const Icon(Icons.handyman_rounded, size: 36, color: Color(0xFF1E1E1E)),
+                  child: const Icon(Icons.handyman_rounded,
+                      size: 36, color: AppTheme.accentPrimaire),
                 ),
                 const SizedBox(height: 16),
-                const Text('ArtisanBF', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF2E4A0B))),
+                Text('Artisan BF',
+                    style: GoogleFonts.inter(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.textePrimaire)),
                 const SizedBox(height: 40),
 
                 AnimatedSwitcher(
@@ -80,35 +83,48 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
       key: const ValueKey('succes'),
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFE9ECEF)),
+        color: AppTheme.surfaceCard,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppTheme.bordureSubtile),
       ),
       child: Column(
         children: [
           Container(
             width: 72,
             height: 72,
-            decoration: BoxDecoration(color: const Color(0xFFE8F5E9), borderRadius: BorderRadius.circular(20)),
-            child: const Icon(Icons.mark_email_read_outlined, size: 38, color: Color(0xFF2E7D32)),
+            decoration: BoxDecoration(
+              color: AppTheme.accentSecondaire.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: const Icon(Icons.mark_email_read_outlined,
+                size: 38, color: AppTheme.accentPrimaire),
           ),
           const SizedBox(height: 20),
-          const Text('Email envoyé !', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+          Text('Email envoyé !',
+              style: GoogleFonts.inter(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.textePrimaire)),
           const SizedBox(height: 10),
           Text(
             'Un lien de réinitialisation a été envoyé à\n${_emailCtrl.text}',
             textAlign: TextAlign.center,
-            style: const TextStyle(color: Color(0xFF6C757D), height: 1.5),
+            style: GoogleFonts.inter(
+                color: AppTheme.texteSecondaire, height: 1.5),
           ),
           const SizedBox(height: 28),
           SizedBox(
             width: double.infinity,
-            height: 52,
-            child: ElevatedButton.icon(
+            height: 54,
+            child: ElevatedButton(
               onPressed: () => context.go('/login'),
-              icon: const Icon(Icons.arrow_back_rounded, size: 18),
-              label: const Text('Retour à la connexion', style: TextStyle(fontWeight: FontWeight.bold)),
-              style: ElevatedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.accentPrimaire,
+                  foregroundColor: const Color(0xFF0F0F0F),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14))),
+              child: const Text('Retour à la connexion',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
             ),
           ),
         ],
@@ -121,30 +137,48 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
       key: const ValueKey('form'),
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFE9ECEF)),
+        color: AppTheme.surfaceCard,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppTheme.bordureSubtile),
       ),
       child: Form(
         key: _formKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Mot de passe oublié ?', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+            Text('Mot de passe oublié ?',
+                style: GoogleFonts.inter(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.textePrimaire)),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Entrez votre email pour recevoir un lien de réinitialisation.',
-              style: TextStyle(color: Color(0xFF6C757D), fontSize: 14, height: 1.4),
+              style: GoogleFonts.inter(
+                  color: AppTheme.texteSecondaire,
+                  fontSize: 14,
+                  height: 1.4),
             ),
             const SizedBox(height: 24),
-            const Text('Email', style: TextStyle(fontWeight: FontWeight.w600)),
+            Text('Email',
+                style: GoogleFonts.inter(
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.texteSecondaire)),
             const SizedBox(height: 8),
             TextFormField(
               controller: _emailCtrl,
               keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(
+              style: GoogleFonts.inter(color: AppTheme.textePrimaire),
+              decoration: InputDecoration(
                 hintText: 'votre@email.com',
-                prefixIcon: Icon(Icons.email_outlined, color: Colors.grey),
+                prefixIcon:
+                    const Icon(Icons.email_outlined, color: AppTheme.texteSecondaire),
+                filled: true,
+                fillColor: AppTheme.surfaceCardHover,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: BorderSide.none,
+                ),
               ),
               validator: Validators.email,
             ),
@@ -152,12 +186,19 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
               const SizedBox(height: 10),
               Container(
                 padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(color: Colors.red[50], borderRadius: BorderRadius.circular(10)),
+                decoration: BoxDecoration(
+                  color: AppTheme.erreur.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
                 child: Row(
                   children: [
-                    const Icon(Icons.error_outline, color: Colors.red, size: 16),
+                    const Icon(Icons.error_outline,
+                        color: AppTheme.erreur, size: 16),
                     const SizedBox(width: 8),
-                    Expanded(child: Text(authState.erreur!, style: const TextStyle(color: Colors.red, fontSize: 12))),
+                    Expanded(
+                        child: Text(authState.erreur!,
+                            style: GoogleFonts.inter(
+                                color: AppTheme.erreur, fontSize: 12))),
                   ],
                 ),
               ),
@@ -168,13 +209,24 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
               height: 54,
               child: ElevatedButton(
                 onPressed: authState.isLoading ? null : _envoyer,
-                style: ElevatedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.accentPrimaire,
+                    foregroundColor: const Color(0xFF0F0F0F),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14))),
                 child: authState.isLoading
-                    ? const SizedBox(height: 22, width: 22, child: CircularProgressIndicator(color: Color(0xFF1E1E1E), strokeWidth: 2))
+                    ? const SizedBox(
+                        height: 22,
+                        width: 22,
+                        child: CircularProgressIndicator(
+                            color: Color(0xFF0F0F0F), strokeWidth: 2))
                     : const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text('Envoyer le lien', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                          Text('Envoyer le lien',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16)),
                           SizedBox(width: 8),
                           Icon(Icons.arrow_forward_rounded, size: 18),
                         ],
@@ -185,8 +237,10 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
             Center(
               child: TextButton.icon(
                 onPressed: () => context.go('/login'),
-                icon: const Icon(Icons.arrow_back_rounded, size: 16, color: Color(0xFF495057)),
-                label: const Text('Retour à la connexion', style: TextStyle(color: Color(0xFF495057))),
+                icon: const Icon(Icons.arrow_back_rounded,
+                    size: 16, color: AppTheme.texteSecondaire),
+                label: Text('Retour à la connexion',
+                    style: GoogleFonts.inter(color: AppTheme.texteSecondaire)),
               ),
             ),
           ],

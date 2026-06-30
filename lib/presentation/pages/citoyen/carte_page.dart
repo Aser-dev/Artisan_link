@@ -1,12 +1,18 @@
 // lib/presentation/pages/citoyen/carte_page.dart
+// Carte interactive OpenStreetMap pour visualiser les commerces à proximité
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/services/location_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../providers/commerce_provider.dart';
+import '../../widgets/skeletons.dart';
+import '../../widgets/design_system.dart';
 import 'detail_commerce_page.dart';
 
 class CartePage extends ConsumerStatefulWidget {
@@ -26,17 +32,15 @@ class _CartePageState extends ConsumerState<CartePage> {
   bool _isLoading = true;
   String? _errorMessage;
 
-  // Liste des catégories avec icônes
   final List<Map<String, dynamic>> _categories = [
     {'label': 'Tout', 'icon': Icons.all_inclusive},
-    {'label': 'Mécaniciens', 'icon': Icons.build},
-    {'label': 'Couturiers', 'icon': Icons.dry_cleaning},
-    {'label': 'Menuisiers', 'icon': Icons.handyman},
+    {'label': 'Mécaniciens', 'icon': Icons.build_rounded},
+    {'label': 'Couturiers', 'icon': Icons.checkroom_rounded},
+    {'label': 'Menuisiers', 'icon': Icons.handyman_rounded},
     {'label': 'Ferronniers', 'icon': Icons.iron},
-    {'label': 'Électriciens', 'icon': Icons.electrical_services},
+    {'label': 'Électriciens', 'icon': Icons.electrical_services_rounded},
   ];
 
-  // Commerce sélectionné pour la bottom sheet
   dynamic _selectedCommerce;
 
   @override
@@ -72,15 +76,12 @@ class _CartePageState extends ConsumerState<CartePage> {
   }
 
   void _selectCommerce(dynamic commerce) {
-    setState(() {
-      _selectedCommerce = commerce;
-    });
+    HapticFeedback.lightImpact();
+    setState(() => _selectedCommerce = commerce);
   }
 
   void _closeBottomSheet() {
-    setState(() {
-      _selectedCommerce = null;
-    });
+    setState(() => _selectedCommerce = null);
   }
 
   @override
@@ -89,26 +90,30 @@ class _CartePageState extends ConsumerState<CartePage> {
     final commerces = commerceState.commerces;
 
     if (_isLoading) {
-      return const Scaffold(
-        backgroundColor: AppTheme.background,
-        body: Center(child: CircularProgressIndicator()),
+      return Scaffold(
+        backgroundColor: AppTheme.fondPrincipal,
+        body: const SkeletonMap(),
       );
     }
 
     if (_errorMessage != null) {
       return Scaffold(
-        backgroundColor: AppTheme.background,
+        backgroundColor: AppTheme.fondPrincipal,
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.error_outline, size: 48, color: Colors.red),
+              const Icon(Icons.error_outline, size: 48, color: AppTheme.erreur),
               const SizedBox(height: 16),
-              Text(_errorMessage!),
+              Text(
+                _errorMessage!,
+                style: GoogleFonts.inter(color: AppTheme.texteSecondaire),
+              ),
               const SizedBox(height: 16),
-              ElevatedButton(
+              PrimaryButton(
+                label: 'Réessayer',
                 onPressed: _loadData,
-                child: const Text('Réessayer'),
+                icon: Icons.refresh_rounded,
               ),
             ],
           ),
@@ -116,12 +121,10 @@ class _CartePageState extends ConsumerState<CartePage> {
       );
     }
 
-    // Filtrer les commerces par catégorie
     final filteredCommerces = _selectedCategory == 'Tout'
         ? commerces
         : commerces.where((c) => c.categorie == _selectedCategory).toList();
 
-    // Construction des marqueurs
     final markers = filteredCommerces.where((c) => c.aPosition).map((c) {
       return Marker(
         width: 80,
@@ -132,7 +135,6 @@ class _CartePageState extends ConsumerState<CartePage> {
       );
     }).toList();
 
-    // Marqueur de la position de l'utilisateur
     if (_userPosition != null) {
       markers.add(
         Marker(
@@ -143,18 +145,20 @@ class _CartePageState extends ConsumerState<CartePage> {
           child: Container(
             width: 20,
             height: 20,
-            decoration: const BoxDecoration(
-              color: Colors.blue,
+            decoration: BoxDecoration(
+              color: AppTheme.accentPrimaire,
               shape: BoxShape.circle,
+              border: Border.all(color: AppTheme.fondPrincipal, width: 3),
             ),
-            child: const Icon(Icons.my_location, color: Colors.white, size: 16),
+            child: const Icon(Icons.my_location,
+                color: Color(0xFF0F0F0F), size: 12),
           ),
         ),
       );
     }
 
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: AppTheme.fondPrincipal,
       body: Stack(
         children: [
           // Carte
@@ -167,20 +171,20 @@ class _CartePageState extends ConsumerState<CartePage> {
             ),
             children: [
               TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                urlTemplate:
+                    'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                 userAgentPackageName: 'com.example.artisan_bf',
               ),
               MarkerLayer(markers: markers),
             ],
           ),
 
-          // Interface utilisateur flottante
+          // Interface flottante
           SafeArea(
             child: Column(
               children: [
-                // Barre de recherche et filtres
                 Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(16),
                   child: Column(
                     children: [
                       _buildSearchBar(),
@@ -190,18 +194,18 @@ class _CartePageState extends ConsumerState<CartePage> {
                   ),
                 ),
                 const Spacer(),
-                // Bouton de localisation
                 Padding(
-                  padding: const EdgeInsets.only(right: 16.0, bottom: 16.0),
+                  padding: const EdgeInsets.only(right: 16, bottom: 16),
                   child: Align(
                     alignment: Alignment.bottomRight,
                     child: FloatingActionButton(
                       mini: true,
-                      backgroundColor: AppTheme.surface,
+                      backgroundColor: AppTheme.surfaceCard,
                       onPressed: _loadData,
                       child: const Icon(
                         Icons.my_location,
-                        color: AppTheme.primary,
+                        color: AppTheme.accentPrimaire,
+                        size: 20,
                       ),
                     ),
                   ),
@@ -210,68 +214,57 @@ class _CartePageState extends ConsumerState<CartePage> {
             ),
           ),
 
-          // Bottom Sheet des détails
           if (_selectedCommerce != null) _buildDetailBottomSheet(),
         ],
       ),
     );
   }
 
-  // ─── Barre de recherche ──────────────────────────────────
-
   Widget _buildSearchBar() {
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.surface,
-        borderRadius: BorderRadius.circular(30),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x1A000000),
-            blurRadius: 12,
-            offset: Offset(0, 4),
-          ),
-        ],
-        border: Border.all(color: AppTheme.outlineVariant.withValues(alpha: 0.3)),
+        color: AppTheme.surfaceCard,
+        borderRadius: BorderRadius.circular(99),
+        border: Border.all(color: AppTheme.bordureSubtile),
       ),
       child: Row(
         children: [
           const Padding(
             padding: EdgeInsets.only(left: 16),
-            child: Icon(Icons.search, color: AppTheme.onSurfaceVariant),
+            child: Icon(Icons.search,
+                color: AppTheme.texteSecondaire, size: 20),
           ),
           Expanded(
             child: TextField(
               controller: _searchController,
-              decoration: const InputDecoration(
-                hintText: 'Rechercher un ferronnier, mécanicien...',
+              style: GoogleFonts.inter(
+                  fontSize: 14, color: AppTheme.textePrimaire),
+              decoration: InputDecoration(
+                hintText: 'Rechercher un artisan...',
                 border: InputBorder.none,
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 12,
-                ),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
               ),
               onSubmitted: (value) {
-                // Lancer la recherche
-                ref.read(commerceProvider.notifier).rechercher(query: value);
+                ref
+                    .read(commerceProvider.notifier)
+                    .rechercher(query: value);
               },
             ),
           ),
           IconButton(
-            onPressed: () {
-              // Ouvrir les filtres avancés
-            },
-            icon: const Icon(Icons.tune, color: AppTheme.primary),
+            onPressed: () {},
+            icon: const Icon(Icons.tune,
+                color: AppTheme.accentPrimaire, size: 20),
           ),
         ],
       ),
     );
   }
 
-  // ─── Filtres par catégorie ──────────────────────────────
-
   Widget _buildCategoryFilters() {
     return SizedBox(
-      height: 48,
+      height: 44,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: _categories.length,
@@ -279,47 +272,59 @@ class _CartePageState extends ConsumerState<CartePage> {
         itemBuilder: (context, index) {
           final cat = _categories[index];
           final isSelected = _selectedCategory == cat['label'];
-          return FilterChip(
-            label: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(cat['icon'] as IconData, size: 18),
-                const SizedBox(width: 6),
-                Text(cat['label'] as String),
-              ],
-            ),
-            selected: isSelected,
-            onSelected: (_) {
-              setState(() {
-                _selectedCategory = cat['label'] as String;
-              });
-              // Mettre à jour le filtre dans le provider
+          return GestureDetector(
+            onTap: () {
+              setState(() => _selectedCategory = cat['label'] as String);
               ref
                   .read(commerceProvider.notifier)
                   .filtrerParCategorie(
-                    _selectedCategory == 'Tout' ? null : _selectedCategory,
+                    _selectedCategory == 'Tout'
+                        ? null
+                        : _selectedCategory,
                   );
             },
-            showCheckmark: false,
-            selectedColor: AppTheme.primary,
-            labelStyle: TextStyle(
-              color: isSelected
-                  ? AppTheme.onPrimary
-                  : AppTheme.onSurfaceVariant,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? AppTheme.accentSecondaire
+                    : AppTheme.surfaceCard,
+                borderRadius: BorderRadius.circular(99),
+                border: Border.all(
+                  color: isSelected
+                      ? AppTheme.accentPrimaire
+                      : AppTheme.bordureSubtile,
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(cat['icon'] as IconData,
+                      size: 16,
+                      color: isSelected
+                          ? AppTheme.accentPrimaire
+                          : AppTheme.texteSecondaire),
+                  const SizedBox(width: 6),
+                  Text(
+                    cat['label'] as String,
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: isSelected
+                          ? AppTheme.accentPrimaire
+                          : AppTheme.texteSecondaire,
+                    ),
+                  ),
+                ],
+              ),
             ),
-            backgroundColor: AppTheme.surface,
-            side: BorderSide(
-              color: isSelected ? Colors.transparent : AppTheme.outlineVariant,
-              width: 1,
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           );
         },
       ),
     );
   }
-
-  // ─── Marqueur personnalisé ──────────────────────────────
 
   Widget _buildMarker(dynamic commerce) {
     return GestureDetector(
@@ -328,15 +333,16 @@ class _CartePageState extends ConsumerState<CartePage> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 40,
-            height: 40,
+            width: 44,
+            height: 44,
             decoration: BoxDecoration(
-              color: AppTheme.primary,
+              color: AppTheme.accentPrimaire,
               shape: BoxShape.circle,
-              border: Border.all(color: Colors.white, width: 2),
+              border:
+                  Border.all(color: AppTheme.fondPrincipal, width: 2),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.15),
+                  color: Colors.black.withValues(alpha: 0.3),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -345,7 +351,7 @@ class _CartePageState extends ConsumerState<CartePage> {
             child: Center(
               child: Icon(
                 _getCategoryIcon(commerce.categorie),
-                color: AppTheme.onPrimary,
+                color: const Color(0xFF0F0F0F),
                 size: 20,
               ),
             ),
@@ -353,41 +359,34 @@ class _CartePageState extends ConsumerState<CartePage> {
           if (_selectedCommerce == commerce) ...[
             const SizedBox(height: 4),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: AppTheme.surface,
+                color: AppTheme.surfaceCard,
                 borderRadius: BorderRadius.circular(8),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Color(0x1A000000),
-                    blurRadius: 8,
-                    offset: Offset(0, 2),
-                  ),
-                ],
+                border: Border.all(color: AppTheme.bordureSubtile),
               ),
               child: Column(
                 children: [
                   Text(
                     commerce.nom,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.primary,
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.accentPrimaire,
                     ),
                   ),
                   Row(
                     children: [
-                      const Icon(
-                        Icons.star,
-                        color: AppTheme.savannahGold,
-                        size: 12,
-                      ),
-                      const SizedBox(width: 4),
+                      const Icon(Icons.star,
+                          color: Color(0xFF8CD82C), size: 10),
+                      const SizedBox(width: 2),
                       Text(
                         commerce.noteMoyenne.toStringAsFixed(1),
-                        style: const TextStyle(
+                        style: GoogleFonts.inter(
                           fontSize: 10,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.textePrimaire,
                         ),
                       ),
                     ],
@@ -404,23 +403,21 @@ class _CartePageState extends ConsumerState<CartePage> {
   IconData _getCategoryIcon(String category) {
     switch (category.toLowerCase()) {
       case 'mécanicien':
-        return Icons.build;
+        return Icons.build_rounded;
       case 'couturier':
-        return Icons.dry_cleaning;
+        return Icons.checkroom_rounded;
       case 'menuiserie':
       case 'menuisier':
-        return Icons.handyman;
+        return Icons.handyman_rounded;
       case 'ferronnier':
       case 'soudeur':
         return Icons.iron;
       case 'électricien':
-        return Icons.electrical_services;
+        return Icons.electrical_services_rounded;
       default:
-        return Icons.storefront;
+        return Icons.storefront_rounded;
     }
   }
-
-  // ─── Bottom Sheet Détails ──────────────────────────────
 
   Widget _buildDetailBottomSheet() {
     final c = _selectedCommerce;
@@ -429,31 +426,28 @@ class _CartePageState extends ConsumerState<CartePage> {
       left: 0,
       right: 0,
       child: GestureDetector(
-        onTap: () {},
+        onTap: () => context.push('/citoyen/detail/${c.id}'),
         child: Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: AppTheme.surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x1A000000),
-                blurRadius: 30,
-                offset: Offset(0, -8),
-              ),
-            ],
+            color: AppTheme.surfaceCard,
+            borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(24)),
+            border: Border(
+              top: BorderSide(
+                  color: AppTheme.bordureSubtile, width: 0.5),
+            ),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Drag handle
               Center(
                 child: Container(
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: AppTheme.outlineVariant.withValues(alpha: 0.5),
+                    color: AppTheme.texteTertiaire,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -465,12 +459,17 @@ class _CartePageState extends ConsumerState<CartePage> {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(12),
                     child: Container(
-                      width: 80,
-                      height: 80,
-                      color: AppTheme.surfaceVariant,
+                      width: 72,
+                      height: 72,
+                      color: AppTheme.surfaceCardHover,
                       child: c.photos.isNotEmpty
-                          ? Image.network(c.photos.first, fit: BoxFit.cover)
-                          : const Icon(Icons.image, color: Colors.grey),
+                          ? Image.network(c.photos.first,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, _, _) => const Icon(
+                                  Icons.image,
+                                  color: AppTheme.texteTertiaire))
+                          : const Icon(Icons.image,
+                              color: AppTheme.texteTertiaire),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -480,35 +479,37 @@ class _CartePageState extends ConsumerState<CartePage> {
                       children: [
                         Text(
                           c.categorie.toUpperCase(),
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: AppTheme.terracottaClay,
+                          style: GoogleFonts.inter(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.accentPrimaire,
+                            letterSpacing: 0.8,
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           c.nom,
-                          style: const TextStyle(
-                            fontSize: 18,
+                          style: GoogleFonts.inter(
+                            fontSize: 17,
                             fontWeight: FontWeight.w600,
-                            color: AppTheme.primary,
+                            color: AppTheme.textePrimaire,
                           ),
                         ),
                         const SizedBox(height: 4),
                         Row(
                           children: [
-                            const Icon(
-                              Icons.location_on,
-                              size: 14,
-                              color: AppTheme.outline,
-                            ),
+                            const Icon(Icons.location_on,
+                                size: 13,
+                                color: AppTheme.texteSecondaire),
                             const SizedBox(width: 4),
-                            Text(
-                              c.descriptionAdresse ?? 'Adresse non renseignée',
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: AppTheme.onSurfaceVariant,
+                            Expanded(
+                              child: Text(
+                                c.descriptionAdresse ??
+                                    'Adresse non renseignée',
+                                style: GoogleFonts.inter(
+                                  fontSize: 11,
+                                  color: AppTheme.texteSecondaire,
+                                ),
                               ),
                             ),
                           ],
@@ -518,26 +519,23 @@ class _CartePageState extends ConsumerState<CartePage> {
                   ),
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
+                        horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: AppTheme.savannahGold.withValues(alpha: 0.1),
+                      color: AppTheme.accentSecondaire
+                          .withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
                       children: [
-                        const Icon(
-                          Icons.star,
-                          color: AppTheme.savannahGold,
-                          size: 14,
-                        ),
+                        const Icon(Icons.star,
+                            color: Color(0xFF8CD82C), size: 12),
                         const SizedBox(width: 4),
                         Text(
                           c.noteMoyenne.toStringAsFixed(1),
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
+                          style: GoogleFonts.inter(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                            color: AppTheme.textePrimaire,
                           ),
                         ),
                       ],
@@ -549,53 +547,14 @@ class _CartePageState extends ConsumerState<CartePage> {
               Row(
                 children: [
                   Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        // Appeler l'artisan
-                      },
-                      icon: const Icon(Icons.call),
-                      label: const Text('Appeler'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primary,
-                        foregroundColor: AppTheme.onPrimary,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        // Envoyer un message / chat
-                      },
-                      icon: const Icon(Icons.chat_bubble),
-                      label: const Text('Message'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primaryContainer,
-                        foregroundColor: AppTheme.onPrimaryContainer,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
+                    child: PrimaryButton(
+                      label: 'Voir détails',
+                      onPressed: () =>
+                          context.push('/citoyen/detail/${c.id}'),
+                      icon: Icons.info_outline_rounded,
                     ),
                   ),
                 ],
-              ),
-              const SizedBox(height: 8),
-              TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => DetailCommercePage(commerceId: c.id),
-                    ),
-                  );
-                },
-                child: const Text('Voir plus de détails →'),
               ),
             ],
           ),

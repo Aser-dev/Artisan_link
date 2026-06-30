@@ -1,8 +1,12 @@
 ﻿// lib/presentation/pages/auth/reset_password_confirm_page.dart
+// Définition du nouveau mot de passe après réinitialisation
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../widgets/design_system.dart';
 import '../../../core/theme/app_theme.dart';
 
 class ResetPasswordConfirmPage extends ConsumerStatefulWidget {
@@ -31,6 +35,7 @@ class _ResetPasswordConfirmPageState
 
   Future<void> _enregistrer() async {
     if (!_formKey.currentState!.validate()) return;
+    HapticFeedback.lightImpact();
     setState(() {
       _isLoading = true;
       _erreur = null;
@@ -41,13 +46,14 @@ class _ResetPasswordConfirmPageState
       );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Mot de passe mis à jour !'),
-          backgroundColor: Colors.green,
+        SnackBar(
+          content: const Text('Mot de passe mis à jour !'),
+          backgroundColor: AppTheme.accentSecondaire,
         ),
       );
       context.go('/login');
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _erreur = e.toString();
         _isLoading = false;
@@ -58,11 +64,11 @@ class _ResetPasswordConfirmPageState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.neutralSand,
+      backgroundColor: AppTheme.fondPrincipal,
       appBar: AppBar(
-        backgroundColor: AppTheme.neutralSand,
+        backgroundColor: AppTheme.fondPrincipal,
         elevation: 0,
-        foregroundColor: AppTheme.onSurface,
+        foregroundColor: AppTheme.textePrimaire,
       ),
       body: SafeArea(
         child: Center(
@@ -71,85 +77,61 @@ class _ResetPasswordConfirmPageState
             child: Container(
               padding: const EdgeInsets.all(28),
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: AppTheme.outlineVariant),
+                color: AppTheme.surfaceCard,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: AppTheme.bordureSubtile),
               ),
               child: Form(
                 key: _formKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Nouveau mot de passe',
-                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                      style: GoogleFonts.inter(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.textePrimaire,
+                      ),
                     ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Choisissez un nouveau mot de passe.',
-                      style: TextStyle(color: AppTheme.onSurfaceVariant),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Choisissez un nouveau mot de passe sécurisé.',
+                      style: GoogleFonts.inter(
+                        color: AppTheme.texteSecondaire,
+                        fontSize: 14,
+                        height: 1.4,
+                      ),
                     ),
                     const SizedBox(height: 24),
-                    TextFormField(
+                    AppInput(
+                      label: 'Nouveau mot de passe',
+                      hint: 'Minimum 6 caractères',
+                      icon: Icons.lock_outline_rounded,
                       controller: _passwordCtrl,
+                      isPassword: true,
                       obscureText: !_mdpVisible,
-                      decoration: InputDecoration(
-                        labelText: 'Nouveau mot de passe',
-                        prefixIcon: const Icon(Icons.lock_outline_rounded),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _mdpVisible
-                                ? Icons.visibility_off_outlined
-                                : Icons.visibility_outlined,
-                          ),
-                          onPressed: () =>
-                              setState(() => _mdpVisible = !_mdpVisible),
-                        ),
-                      ),
-                      validator: (v) => (v == null || v.length < 6)
-                          ? 'Minimum 6 caractères'
-                          : null,
+                      onToggleVisibility: () =>
+                          setState(() => _mdpVisible = !_mdpVisible),
+                      validator: (v) =>
+                          (v == null || v.length < 6) ? 'Minimum 6 caractères' : null,
                     ),
-                    const SizedBox(height: 16),
-                    TextFormField(
+                    const SizedBox(height: 14),
+                    AppInput(
+                      label: 'Confirmer le mot de passe',
+                      hint: 'Retapez votre mot de passe',
+                      icon: Icons.lock_outline_rounded,
                       controller: _confirmCtrl,
+                      isPassword: true,
                       obscureText: !_mdpVisible,
-                      decoration: const InputDecoration(
-                        labelText: 'Confirmer le mot de passe',
-                        prefixIcon: Icon(Icons.lock_outline_rounded),
-                      ),
-                      validator: (v) => v != _passwordCtrl.text
-                          ? 'Les mots de passe ne correspondent pas'
-                          : null,
+                      onToggleVisibility: () =>
+                          setState(() => _mdpVisible = !_mdpVisible),
+                      validator: (v) =>
+                          v != _passwordCtrl.text ? 'Les mots de passe ne correspondent pas' : null,
                     ),
                     if (_erreur != null) ...[
                       const SizedBox(height: 12),
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: AppTheme.errorContainer,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.error_outline,
-                              color: AppTheme.error,
-                              size: 16,
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                _erreur!,
-                                style: const TextStyle(
-                                  color: AppTheme.error,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                      ErrorBanner(message: _erreur!),
                     ],
                     const SizedBox(height: 24),
                     SizedBox(
@@ -158,6 +140,8 @@ class _ResetPasswordConfirmPageState
                       child: ElevatedButton(
                         onPressed: _isLoading ? null : _enregistrer,
                         style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.accentPrimaire,
+                          foregroundColor: const Color(0xFF0F0F0F),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
                           ),
@@ -166,15 +150,12 @@ class _ResetPasswordConfirmPageState
                             ? const SizedBox(
                                 height: 22,
                                 width: 22,
-                                child: CircularProgressIndicator(strokeWidth: 2),
-                              )
-                            : const Text(
-                                'Enregistrer',
+                                child: CircularProgressIndicator(
+                                    strokeWidth: 2))
+                            : const Text('Enregistrer',
                                 style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16)),
                       ),
                     ),
                   ],

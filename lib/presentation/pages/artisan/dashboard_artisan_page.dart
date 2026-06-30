@@ -1,11 +1,16 @@
 ﻿// lib/presentation/pages/artisan/dashboard_artisan_page.dart
+// Dashboard principal de l'artisan : statistiques, liste des commerces, actions
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter/services.dart';
 import '../../providers/commerce_provider.dart';
 import '../../widgets/commerce_card.dart';
 import '../../providers/auth_provider.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../widgets/design_system.dart';
+import '../../widgets/skeletons.dart';
 
 class DashboardArtisanPage extends ConsumerWidget {
   const DashboardArtisanPage({super.key});
@@ -16,13 +21,13 @@ class DashboardArtisanPage extends ConsumerWidget {
     final user = ref.watch(authProvider).user;
 
     return Scaffold(
-      backgroundColor: AppTheme.neutralSand,
+      backgroundColor: AppTheme.fondPrincipal,
       body: SafeArea(
         child: Column(
           children: [
             // Header
             Container(
-              color: AppTheme.surfaceContainerLow,
+              color: AppTheme.fondPrincipal,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Row(
                 children: [
@@ -30,10 +35,11 @@ class DashboardArtisanPage extends ConsumerWidget {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: AppTheme.primaryContainer,
-                      borderRadius: BorderRadius.circular(999),
+                      color: AppTheme.accentSecondaire,
+                      borderRadius: BorderRadius.circular(99),
                     ),
-                    child: const Icon(Icons.person_rounded, color: AppTheme.onPrimaryContainer, size: 22),
+                    child: const Icon(Icons.person_rounded,
+                        color: AppTheme.accentPrimaire, size: 22),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -41,16 +47,30 @@ class DashboardArtisanPage extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          user != null ? 'Bonjour, ${user.nom.split(' ').first}' : 'Bonjour',
-                          style: const TextStyle(fontFamily: 'Hanken Grotesk', fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.primary),
+                          user != null
+                              ? 'Bonjour, ${user.nom.split(' ').first}'
+                              : 'Bonjour',
+                          style: GoogleFonts.inter(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.textePrimaire,
+                          ),
                         ),
-                        const Text('Gérez votre activité', style: TextStyle(fontSize: 13, color: AppTheme.onSurfaceVariant)),
+                        Text(
+                          'Gérez votre activité',
+                          style: GoogleFonts.inter(
+                            fontSize: 13,
+                            color: AppTheme.texteSecondaire,
+                          ),
+                        ),
                       ],
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.logout_rounded, color: AppTheme.onSurfaceVariant),
+                    icon: const Icon(Icons.logout_rounded,
+                        color: AppTheme.texteSecondaire),
                     onPressed: () {
+                      HapticFeedback.lightImpact();
                       ref.read(authProvider.notifier).logout();
                       context.go('/login');
                     },
@@ -61,74 +81,173 @@ class DashboardArtisanPage extends ConsumerWidget {
 
             Expanded(
               child: mesCommercesAsync.when(
-                loading: () => const Center(child: CircularProgressIndicator(color: AppTheme.primary)),
-                error: (err, _) => Center(child: Text('Erreur : $err', style: const TextStyle(color: AppTheme.error))),
-                data: (commerces) {
-                  if (commerces.isEmpty) return _buildEmptyState(context);
-                  return ListView(
-                    padding: const EdgeInsets.all(16),
-                    children: [
-                      // Stats row
-                      Row(
-                        children: [
-                          _StatCard(label: 'Commerces', value: '${commerces.length}', icon: Icons.storefront_rounded),
-                          const SizedBox(width: 12),
-                          _StatCard(
-                            label: 'Publiés',
-                            value: '${commerces.where((c) => c.estPublie).length}',
-                            icon: Icons.visibility_rounded,
-                            color: AppTheme.primaryContainer,
+                loading: () => ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: 2,
+                  itemBuilder: (_, _) => const SkeletonCard(),
+                ),
+                error: (err, _) => Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(32),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 72,
+                          height: 72,
+                          decoration: BoxDecoration(
+                            color: AppTheme.erreur.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(20),
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text('Mes Commerces', style: TextStyle(fontFamily: 'Hanken Grotesk', fontSize: 18, fontWeight: FontWeight.w600, color: AppTheme.onSurface)),
-                          GestureDetector(
-                            onTap: () => context.push('/artisan/creer'),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                              decoration: BoxDecoration(color: AppTheme.primary, borderRadius: BorderRadius.circular(999)),
-                              child: const Row(
-                                children: [
-                                  Icon(Icons.add_rounded, color: AppTheme.onPrimary, size: 16),
-                                  SizedBox(width: 4),
-                                  Text('Ajouter', style: TextStyle(color: AppTheme.onPrimary, fontWeight: FontWeight.w600, fontSize: 13)),
-                                ],
+                          child: const Icon(Icons.error_outline_rounded,
+                              size: 36, color: AppTheme.erreur),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Impossible de charger vos données',
+                          style: GoogleFonts.inter(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.textePrimaire,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          '$err',
+                          style: GoogleFonts.inter(
+                            fontSize: 13,
+                            color: AppTheme.texteSecondaire,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 20),
+                        AppActionChip(
+                          icon: Icons.refresh_rounded,
+                          label: 'Réessayer',
+                          onTap: () =>
+                              ref.invalidate(mesCommercesProvider),
+                          color: AppTheme.accentPrimaire,
+                          textColor: AppTheme.accentPrimaire,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                data: (commerces) {
+                  if (commerces.isEmpty) {
+                    return _buildEmptyState(context);
+                  }
+                  return RefreshIndicator(
+                    color: AppTheme.accentPrimaire,
+                    backgroundColor: AppTheme.surfaceCard,
+                    onRefresh: () async {
+                      ref.invalidate(mesCommercesProvider);
+                    },
+                    child: ListView(
+                      padding: const EdgeInsets.all(16),
+                      children: [
+                        // Stats row
+                        Row(
+                          children: [
+                            StatCard(
+                              label: 'Commerces',
+                              value: '${commerces.length}',
+                              icon: Icons.storefront_rounded,
+                            ),
+                            const SizedBox(width: 12),
+                            StatCard(
+                              label: 'Publiés',
+                              value:
+                                  '${commerces.where((c) => c.estPublie).length}',
+                              icon: Icons.visibility_rounded,
+                              color: AppTheme.accentPrimaire,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Mes Commerces',
+                              style: GoogleFonts.inter(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                color: AppTheme.textePrimaire,
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      ...commerces.map((c) => Column(
-                        children: [
-                          CommerceCard(commerce: c),
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 12, left: 4, right: 4),
-                            child: Row(
-                              children: [
-                                _ActionChip(
-                                  icon: Icons.edit_rounded,
-                                  label: 'Modifier',
-                                  onTap: () => context.push('/artisan/editer/${c.id}'),
+                            GestureDetector(
+                              onTap: () =>
+                                  context.push('/artisan/creer'),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 14, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.accentPrimaire,
+                                  borderRadius: BorderRadius.circular(99),
                                 ),
-                                const SizedBox(width: 8),
-                                _ActionChip(
-                                  icon: c.estPublie ? Icons.visibility_rounded : Icons.visibility_off_rounded,
-                                  label: c.estPublie ? 'Publié' : 'Brouillon',
-                                  color: c.estPublie ? AppTheme.primaryContainer : AppTheme.secondary,
-                                  textColor: c.estPublie ? AppTheme.onPrimaryContainer : AppTheme.onSecondary,
-                                  onTap: () => context.push('/artisan/publication/${c.id}', extra: c.estPublie),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.add_rounded,
+                                        color: Color(0xFF0F0F0F),
+                                        size: 16),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      'Ajouter',
+                                      style: GoogleFonts.inter(
+                                        color: const Color(0xFF0F0F0F),
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ],
+                              ),
                             ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        ...commerces.map(
+                          (c) => Column(
+                            children: [
+                              CommerceCard(commerce: c),
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                    bottom: 12, left: 4, right: 4),
+                                child: Row(
+                                  children: [
+                                    AppActionChip(
+                                      icon: Icons.edit_rounded,
+                                      label: 'Modifier',
+                                      onTap: () => context.push(
+                                          '/artisan/editer/${c.id}'),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    AppActionChip(
+                                      icon: c.estPublie
+                                          ? Icons.visibility_rounded
+                                          : Icons.visibility_off_rounded,
+                                      label: c.estPublie
+                                          ? 'Publié'
+                                          : 'Brouillon',
+                                      color: c.estPublie
+                                          ? AppTheme.accentPrimaire
+                                          : AppTheme.texteTertiaire,
+                                      textColor: c.estPublie
+                                          ? AppTheme.accentPrimaire
+                                          : AppTheme.texteTertiaire,
+                                      onTap: () => context.push(
+                                          '/artisan/publication/${c.id}',
+                                          extra: c.estPublie),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      )),
-                    ],
+                        ),
+                      ],
+                    ),
                   );
                 },
               ),
@@ -136,9 +255,12 @@ class DashboardArtisanPage extends ConsumerWidget {
           ],
         ),
       ),
-      bottomNavigationBar: _BottomNav(currentIndex: 0, onTap: (i) {
-        if (i == 1) context.push('/artisan/creer');
-      }),
+      bottomNavigationBar: _BottomNav(
+        currentIndex: 0,
+        onTap: (i) {
+          if (i == 1) context.push('/artisan/creer');
+        },
+      ),
     );
   }
 
@@ -152,83 +274,38 @@ class DashboardArtisanPage extends ConsumerWidget {
             Container(
               width: 88,
               height: 88,
-              decoration: BoxDecoration(color: AppTheme.surfaceContainerHigh, borderRadius: BorderRadius.circular(24)),
-              child: const Icon(Icons.storefront_rounded, size: 44, color: AppTheme.primary),
+              decoration: BoxDecoration(
+                color: AppTheme.surfaceCard,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: AppTheme.bordureSubtile),
+              ),
+              child: const Icon(Icons.storefront_rounded,
+                  size: 44, color: AppTheme.accentPrimaire),
             ),
             const SizedBox(height: 20),
-            const Text('Aucun commerce encore', style: TextStyle(fontFamily: 'Hanken Grotesk', fontSize: 20, fontWeight: FontWeight.w700, color: AppTheme.onSurface)),
+            Text(
+              'Aucun commerce encore',
+              style: GoogleFonts.inter(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: AppTheme.textePrimaire,
+              ),
+            ),
             const SizedBox(height: 8),
-            const Text('Créez votre première fiche pour être visible par les clients.', textAlign: TextAlign.center, style: TextStyle(color: AppTheme.onSurfaceVariant, height: 1.5)),
+            Text(
+              'Créez votre première fiche pour être visible par les clients.',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.inter(
+                color: AppTheme.texteSecondaire,
+                height: 1.5,
+              ),
+            ),
             const SizedBox(height: 28),
-            ElevatedButton.icon(
+            PrimaryButton(
+              label: 'Créer mon commerce',
               onPressed: () => context.push('/artisan/creer'),
-              icon: const Icon(Icons.add_rounded),
-              label: const Text('Créer mon commerce'),
-              style: ElevatedButton.styleFrom(minimumSize: const Size(200, 52)),
+              icon: Icons.add_rounded,
             ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _StatCard extends StatelessWidget {
-  final String label, value;
-  final IconData icon;
-  final Color color;
-  const _StatCard({required this.label, required this.value, required this.icon, this.color = AppTheme.surfaceContainerHigh});
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppTheme.surfaceContainerLowest,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppTheme.outlineVariant.withValues(alpha: 0.3)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(label, style: const TextStyle(fontSize: 13, color: AppTheme.onSurfaceVariant, fontWeight: FontWeight.w500)),
-                Icon(icon, size: 20, color: AppTheme.primary),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(value, style: const TextStyle(fontFamily: 'Hanken Grotesk', fontSize: 24, fontWeight: FontWeight.w700, color: AppTheme.primary)),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ActionChip extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-  final Color color;
-  final Color textColor;
-  const _ActionChip({required this.icon, required this.label, required this.onTap, this.color = AppTheme.surfaceContainerHigh, this.textColor = AppTheme.onSurface});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-        decoration: BoxDecoration(color: color.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8), border: Border.all(color: color.withValues(alpha: 0.3))),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 14, color: textColor == AppTheme.onSecondary ? AppTheme.secondary : AppTheme.primary),
-            const SizedBox(width: 6),
-            Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: textColor == AppTheme.onSecondary ? AppTheme.secondary : AppTheme.primary)),
           ],
         ),
       ),
@@ -251,11 +328,12 @@ class _BottomNav extends StatelessWidget {
     ];
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.surface,
-        border: Border(top: BorderSide(color: AppTheme.outlineVariant.withValues(alpha: 0.5))),
-        boxShadow: [BoxShadow(color: AppTheme.primary.withValues(alpha: 0.05), blurRadius: 12, offset: const Offset(0, -4))],
+        color: AppTheme.fondPrincipal,
+        border: Border(
+            top:
+                BorderSide(color: AppTheme.bordureSubtile, width: 0.5)),
       ),
-      padding: const EdgeInsets.fromLTRB(8, 8, 8, 20),
+      padding: const EdgeInsets.fromLTRB(8, 8, 8, 24),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: List.generate(items.length, (i) {
@@ -264,17 +342,35 @@ class _BottomNav extends StatelessWidget {
             onTap: () => onTap(i),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: selected ? AppTheme.primaryContainer.withValues(alpha: 0.2) : Colors.transparent,
-                borderRadius: BorderRadius.circular(12),
+                color: selected
+                    ? AppTheme.accentPrimaire
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(99),
               ),
-              child: Column(
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(items[i].$1, color: selected ? AppTheme.primary : AppTheme.onSurfaceVariant, size: 22),
-                  const SizedBox(height: 2),
-                  Text(items[i].$2, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: selected ? AppTheme.primary : AppTheme.onSurfaceVariant)),
+                  Icon(
+                    items[i].$1,
+                    color: selected
+                        ? const Color(0xFF0F0F0F)
+                        : AppTheme.texteSecondaire,
+                    size: 20,
+                  ),
+                  if (selected) ...[
+                    const SizedBox(width: 6),
+                    Text(
+                      items[i].$2,
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFF0F0F0F),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),

@@ -1,11 +1,16 @@
+// lib/presentation/pages/citoyen/liste_recherche_page.dart
+// Page de recherche et filtrage des commerces par nom, catégorie, note
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../providers/commerce_provider.dart';
-import '../../widgets/commerce_card.dart';
 import '../../../core/constants.dart';
 import '../../../core/services/location_service.dart';
 import '../../../core/theme/app_theme.dart';
-import 'detail_commerce_page.dart';
+import '../../widgets/commerce_card.dart';
+import '../../widgets/design_system.dart';
+import '../../widgets/skeletons.dart';
 
 final locationServiceProvider = Provider<LocationService>((ref) {
   return LocationService();
@@ -25,6 +30,24 @@ class _ListeRecherchePageState extends ConsumerState<ListeRecherchePage> {
   double? _noteFiltre;
 
   @override
+  void initState() {
+    super.initState();
+    _loadCommerces();
+  }
+
+  Future<void> _loadCommerces() async {
+    try {
+      final location = ref.read(locationServiceProvider);
+      final position = await location.getCurrentPositionWithFallback();
+      if (!mounted) return;
+      await ref.read(commerceProvider.notifier).chargerProches(
+            latitude: position.latitude,
+            longitude: position.longitude,
+          );
+    } catch (_) {}
+  }
+
+  @override
   void dispose() {
     _searchCtrl.dispose();
     super.dispose();
@@ -35,54 +58,62 @@ class _ListeRecherchePageState extends ConsumerState<ListeRecherchePage> {
     final commerceState = ref.watch(commerceProvider);
     final filtered = commerceState.commerces.where((c) {
       final matchNom = c.nom.toLowerCase().contains(_query.toLowerCase());
-      final matchCat = _categorieFiltre == null || c.categorie == _categorieFiltre;
+      final matchCat =
+          _categorieFiltre == null || c.categorie == _categorieFiltre;
       final matchNote = _noteFiltre == null || c.noteMoyenne >= _noteFiltre!;
       return matchNom && matchCat && matchNote;
     }).toList();
 
     return Scaffold(
-      backgroundColor: AppTheme.neutralSand,
+      backgroundColor: AppTheme.fondPrincipal,
       body: Column(
         children: [
-          // Barre recherche + filtres
           Container(
-            color: AppTheme.neutralSand,
+            color: AppTheme.fondPrincipal,
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
             child: Column(
               children: [
-                // Champ recherche
+                // Barre recherche
                 Container(
                   decoration: BoxDecoration(
-                    color: AppTheme.surfaceContainerLowest,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppTheme.outlineVariant.withValues(alpha: 0.3)),
-                    boxShadow: [BoxShadow(color: AppTheme.primary.withValues(alpha: 0.04), blurRadius: 8)],
+                    color: AppTheme.surfaceCard,
+                    borderRadius: BorderRadius.circular(99),
+                    border: Border.all(color: AppTheme.bordureSubtile),
                   ),
                   child: TextField(
                     controller: _searchCtrl,
                     onChanged: (v) => setState(() => _query = v),
+                    style: GoogleFonts.inter(
+                        fontSize: 14, color: AppTheme.textePrimaire),
                     decoration: InputDecoration(
                       hintText: 'Rechercher un artisan...',
-                      hintStyle: const TextStyle(color: AppTheme.onSurfaceVariant, fontSize: 14),
-                      prefixIcon: const Icon(Icons.search_rounded, color: AppTheme.onSurfaceVariant, size: 20),
+                      prefixIcon: const Icon(Icons.search_rounded,
+                          color: AppTheme.texteSecondaire, size: 20),
                       suffixIcon: _query.isNotEmpty
                           ? IconButton(
-                              icon: const Icon(Icons.clear_rounded, size: 18, color: AppTheme.onSurfaceVariant),
-                              onPressed: () { _searchCtrl.clear(); setState(() => _query = ''); })
+                              icon: const Icon(Icons.clear_rounded,
+                                  size: 18,
+                                  color: AppTheme.texteSecondaire),
+                              onPressed: () {
+                                _searchCtrl.clear();
+                                setState(() => _query = '');
+                              })
                           : null,
                       border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                      contentPadding:
+                          const EdgeInsets.symmetric(vertical: 14),
                     ),
                   ),
                 ),
                 const SizedBox(height: 10),
-                // Chips catégories
+                // Filtres
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
                       _buildChip('Tous', null),
-                      ...AppConstants.categories.map((cat) => _buildChip(cat, cat)),
+                      ...AppConstants.categories
+                          .map((cat) => _buildChip(cat, cat)),
                       const SizedBox(width: 8),
                       _buildNoteFilter(),
                     ],
@@ -95,32 +126,47 @@ class _ListeRecherchePageState extends ConsumerState<ListeRecherchePage> {
           // Résultats
           Expanded(
             child: commerceState.isLoading
-                ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
-                : filtered.isEmpty
-                ? Center(
-                    child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                      Container(
-                        width: 72, height: 72,
-                        decoration: BoxDecoration(color: AppTheme.surfaceContainerHigh, borderRadius: BorderRadius.circular(20)),
-                        child: const Icon(Icons.search_off_rounded, size: 36, color: AppTheme.outlineVariant),
-                      ),
-                      const SizedBox(height: 16),
-                      const Text('Aucun artisan trouvé.', style: TextStyle(fontFamily: 'Hanken Grotesk', fontSize: 16, fontWeight: FontWeight.w600, color: AppTheme.onSurface)),
-                      const SizedBox(height: 4),
-                      const Text('Essayez un autre mot-clé ou catégorie.', style: TextStyle(color: AppTheme.onSurfaceVariant, fontSize: 13)),
-                    ]),
-                  )
-                : ListView.builder(
+                ? ListView.builder(
                     padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                    itemCount: filtered.length,
-                    itemBuilder: (context, i) {
-                      final c = filtered[i];
-                      return GestureDetector(
-                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => DetailCommercePage(commerceId: c.id))),
-                        child: CommerceCard(commerce: c),
-                      );
-                    },
-                  ),
+                    itemCount: 3,
+                    itemBuilder: (_, _) => const SkeletonCard(),
+                  )
+                : filtered.isEmpty
+                    ? EmptyState(
+                        icon: Icons.search_off_rounded,
+                        title: 'Aucun artisan trouvé.',
+                        subtitle:
+                            'Essayez un autre mot-clé ou catégorie.',
+                        actionLabel: 'Réinitialiser',
+                        onAction: () {
+                          setState(() {
+                            _query = '';
+                            _categorieFiltre = null;
+                            _noteFiltre = null;
+                            _searchCtrl.clear();
+                          });
+                          ref
+                              .read(commerceProvider.notifier)
+                              .filtrerParCategorie(null);
+                        },
+                      )
+                    : RefreshIndicator(
+                        color: AppTheme.accentPrimaire,
+                        onRefresh: _loadCommerces,
+                        child: ListView.builder(
+                          padding:
+                              const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                          itemCount: filtered.length,
+                          itemBuilder: (context, i) {
+                            final c = filtered[i];
+                            return GestureDetector(
+                              onTap: () => context.push(
+                                  '/citoyen/detail/${c.id}'),
+                              child: CommerceCard(commerce: c),
+                            );
+                          },
+                        ),
+                      ),
           ),
         ],
       ),
@@ -133,18 +179,37 @@ class _ListeRecherchePageState extends ConsumerState<ListeRecherchePage> {
       padding: const EdgeInsets.only(right: 6),
       child: GestureDetector(
         onTap: () {
-          setState(() => _categorieFiltre = selected ? null : value);
-          ref.read(commerceProvider.notifier).filtrerParCategorie(selected ? null : value);
+          setState(
+              () => _categorieFiltre = selected ? null : value);
+          ref
+              .read(commerceProvider.notifier)
+              .filtrerParCategorie(selected ? null : value);
         },
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 150),
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+          padding:
+              const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
           decoration: BoxDecoration(
-            color: selected ? AppTheme.primary : AppTheme.surfaceContainerLowest,
-            borderRadius: BorderRadius.circular(999),
-            border: Border.all(color: selected ? AppTheme.primary : AppTheme.outlineVariant.withValues(alpha: 0.5)),
+            color: selected
+                ? AppTheme.accentSecondaire
+                : AppTheme.surfaceCard,
+            borderRadius: BorderRadius.circular(99),
+            border: Border.all(
+              color: selected
+                  ? AppTheme.accentPrimaire
+                  : AppTheme.bordureSubtile,
+            ),
           ),
-          child: Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: selected ? AppTheme.onPrimary : AppTheme.onSurfaceVariant)),
+          child: Text(
+            label,
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: selected
+                  ? AppTheme.accentPrimaire
+                  : AppTheme.texteSecondaire,
+            ),
+          ),
         ),
       ),
     );
@@ -164,16 +229,38 @@ class _ListeRecherchePageState extends ConsumerState<ListeRecherchePage> {
         const PopupMenuItem(value: 2.0, child: Text('⭐ 2 et +')),
       ],
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+        padding:
+            const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
         decoration: BoxDecoration(
-          color: _noteFiltre != null ? AppTheme.savannahGold.withValues(alpha: 0.15) : AppTheme.surfaceContainerLowest,
-          borderRadius: BorderRadius.circular(999),
-          border: Border.all(color: _noteFiltre != null ? AppTheme.savannahGold : AppTheme.outlineVariant.withValues(alpha: 0.5)),
+          color: _noteFiltre != null
+              ? AppTheme.accentSecondaire.withValues(alpha: 0.2)
+              : AppTheme.surfaceCard,
+          borderRadius: BorderRadius.circular(99),
+          border: Border.all(
+            color: _noteFiltre != null
+                ? AppTheme.accentPrimaire
+                : AppTheme.bordureSubtile,
+          ),
         ),
         child: Row(children: [
-          Icon(Icons.star_rounded, color: _noteFiltre != null ? AppTheme.savannahGold : AppTheme.onSurfaceVariant, size: 16),
+          Icon(
+            Icons.star_rounded,
+            color: _noteFiltre != null
+                ? AppTheme.accentPrimaire
+                : AppTheme.texteSecondaire,
+            size: 16,
+          ),
           const SizedBox(width: 4),
-          Text(_noteFiltre != null ? '${_noteFiltre!.toInt()}+' : 'Note', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: _noteFiltre != null ? AppTheme.savannahGold : AppTheme.onSurfaceVariant)),
+          Text(
+            _noteFiltre != null ? '${_noteFiltre!.toInt()}+' : 'Note',
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: _noteFiltre != null
+                  ? AppTheme.accentPrimaire
+                  : AppTheme.texteSecondaire,
+            ),
+          ),
         ]),
       ),
     );
